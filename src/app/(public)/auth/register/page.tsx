@@ -46,6 +46,18 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-gray-700 mb-2" htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              placeholder="Confirm password"
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
 
           {/* Register Button */}
           <button
@@ -57,6 +69,11 @@ export default function RegisterPage() {
         </form>
 
         
+
+        {/* Login Link */}
+        <p className="text-center text-gray-500 mt-6">
+          Already have an account? <a href="/auth/login" className="text-blue-500 hover:underline">Login</a>
+        </p>
       </div>
     </div>
   );
