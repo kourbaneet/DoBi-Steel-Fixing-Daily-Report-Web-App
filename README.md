@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DoBi Steel Fixing — Daily Docket & Payroll Web App
 
-## Getting Started
+A lightweight web app for Australian steel-fixing operations to capture **daily dockets**, track **worker hours**, manage **contractors/builders**, and generate **weekly payments**—with optional **AI insights** on activity trends.
 
-First, run the development server:
+## Features
+- **Auth & Roles:** Admin, Supervisor, Worker (role-aware UI).
+- **Daily Dockets:** Date, company/builder, location, schedule no., notes, photos.
+- **Worker Hours:** Tonnage work & day-labour hours per worker.
+- **Admin Tools:** Manage contractors (ABN, rates), builders & locations, weekly payments.
+- **Search/Filter:** Quickly find contractors and dockets.
+- **Email Flows:** Verification & password reset (via SendGrid or similar).
+- **AI (optional):** Backend analysis (OpenAI API) to summarize usage/insights.
 
+## Tech Stack & Architecture
+- **Frontend:** Next.js + Tailwind CSS  
+- **Backend:** Next.js API routes (MVC-style business logic, RESTful endpoints)  
+- **Database:** MySQL (users, dockets, workers, photos, weekly_payments, builders, locations, contractors)  
+- **Email:** SendGrid (or equivalent)  
+- **AI:** OpenAI API for summarization/insights (optional)
+
+## Quick Start
 ```bash
+# 1) Clone & install
+git clone <your-repo-url>
+cd <repo> && npm install
+
+# 2) Configure env (.env)
+# DATABASE_URL=mysql://user:pass@localhost:3306/dobi
+# SENDGRID_API_KEY=...
+# OPENAI_API_KEY=...        # optional if using AI
+# APP_URL=http://localhost:3000
+
+# 3) Init DB (create schema & run migrations)
+# Use your preferred ORM/tooling to create the tables listed below.
+
+# 4) Run
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
