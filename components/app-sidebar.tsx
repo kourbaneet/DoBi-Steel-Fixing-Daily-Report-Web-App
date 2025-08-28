@@ -1,0 +1,233 @@
+"use client"
+
+import * as React from "react"
+import {
+  AudioWaveform,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
+  Map,
+  PieChart,
+  Settings2,
+  SquareTerminal,
+  Home,
+  Users,
+  FileText,
+  CreditCard,
+  BarChart3,
+  Shield,
+  Wrench,
+  FolderOpen,
+  Plus,
+  Search,
+  CheckSquare,
+  User,
+  Building,
+  UserPlus,
+  Cog,
+  LogOut,
+} from "lucide-react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar"
+
+const data = {
+  user: {
+    name: "User",
+    email: "user@dobiSteel.com",
+    avatar: "/avatars/user.jpg",
+  },
+  teams: [
+    {
+      name: "Dobi Steel",
+      logo: Shield,
+      plan: "Enterprise",
+    },
+  ],
+  navMain: [
+    {
+      title: "Overview",
+      url: "/dashboard",
+      icon: Home,
+      isActive: true,
+    },
+    {
+      title: "Dockets",
+      url: "/dockets",
+      icon: FileText,
+      items: [
+        {
+          title: "New Docket",
+          url: "/dockets/new",
+        },
+        {
+          title: "My Drafts",
+          url: "/dockets?status=draft&me=1",
+        },
+        {
+          title: "Submitted by Me",
+          url: "/dockets?creator=me",
+        },
+        {
+          title: "All Dockets",
+          url: "/dockets",
+        },
+        {
+          title: "Pending Approval",
+          url: "/dockets/pending",
+        },
+        {
+          title: "Approved",
+          url: "/dockets?status=approved",
+        },
+        {
+          title: "Rejected",
+          url: "/dockets?status=rejected",
+        },
+        {
+          title: "Search",
+          url: "/dockets/search",
+        },
+      ],
+    },
+    {
+      title: "Projects",
+      url: "/projects",
+      icon: FolderOpen,
+      items: [
+        {
+          title: "Projects",
+          url: "/projects",
+        },
+        {
+          title: "Add Project",
+          url: "/projects/new",
+        },
+      ],
+    },
+    {
+      title: "Workers",
+      url: "/workers",
+      icon: Users,
+      items: [
+        {
+          title: "Worker Roster",
+          url: "/workers",
+        },
+        {
+          title: "Add Worker",
+          url: "/workers/new",
+        },
+      ],
+    },
+    {
+      title: "Clients",
+      url: "/clients",
+      icon: Building,
+      items: [
+        {
+          title: "Clients",
+          url: "/clients",
+        },
+        {
+          title: "Add Client",
+          url: "/clients/new",
+        },
+      ],
+    },
+    {
+      title: "Approvals",
+      url: "/approvals",
+      icon: CheckSquare,
+      items: [
+        {
+          title: "To Approve",
+          url: "/approvals",
+        },
+        {
+          title: "My Approval History",
+          url: "/approvals/history",
+        },
+      ],
+    },
+    {
+      title: "Reports",
+      url: "/reports",
+      icon: BarChart3,
+      items: [
+        {
+          title: "Docket Summary",
+          url: "/reports/dockets",
+        },
+        {
+          title: "Worker Hours",
+          url: "/reports/workers",
+        },
+        {
+          title: "Project Activity",
+          url: "/reports/projects",
+        },
+      ],
+    },
+    {
+      title: "Admin",
+      url: "/dashboard/admin",
+      icon: Cog,
+      items: [
+        {
+          title: "Users",
+          url: "/dashboard/admin/users",
+        },
+        {
+          title: "Invite User",
+          url: "/dashboard/admin/users/invite",
+        },
+        {
+          title: "Company Profile / Settings",
+          url: "/dashboard/admin/settings",
+        },
+      ],
+    },
+  ],
+  projects: [
+    {
+      name: "My Profile",
+      url: "/account",
+      icon: User,
+    },
+    {
+      name: "Sign Out",
+      url: "/signout",
+      icon: LogOut,
+    },
+  ],
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
