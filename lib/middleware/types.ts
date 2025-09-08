@@ -8,7 +8,7 @@ export interface ApiRequest extends NextRequest {
 
 export type ApiHandler = (
   _req: ApiRequest,
-  _res?: NextResponse
+  _context?: any
 ) => Promise<NextResponse | void>
 
 export type MiddlewareFunction = (

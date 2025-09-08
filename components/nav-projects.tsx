@@ -1,5 +1,6 @@
 "use client"
 
+import { signOut } from "next-auth/react"
 import {
   Folder,
   Forward,
@@ -36,6 +37,14 @@ export function NavProjects({
 }) {
   const { isMobile } = useSidebar()
 
+  const handleLinkClick = (url: string, name: string) => {
+    if (name === "Sign Out" || url === "/signout") {
+      signOut({ callbackUrl: "/" })
+    } else {
+      window.location.href = url
+    }
+  }
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
@@ -43,10 +52,13 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <button 
+                onClick={() => handleLinkClick(item.url, item.name)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-left"
+              >
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </button>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

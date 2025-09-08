@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePermissions } from "@/hooks/usePermissions"
 import {
   AudioWaveform,
   BookOpen,
@@ -181,6 +182,29 @@ const data = {
       ],
     },
     {
+      title: "Contractors", 
+      url: "/dashboard/contractors",
+      icon: Users,
+      items: [
+        {
+          title: "All Contractors",
+          url: "/dashboard/contractors",
+        },
+      ],
+    },
+    {
+      title: "Builders",
+      url: "/dashboard/builders",
+      icon: Building,
+      items: [
+        {
+          title: "All Builders",
+          url: "/dashboard/builders",
+        },
+        
+      ],
+    },
+    {
       title: "Admin",
       url: "/dashboard/admin",
       icon: Cog,
@@ -194,6 +218,10 @@ const data = {
           url: "/dashboard/admin/users/invite",
         },
         {
+          title: "Builders",
+          url: "/dashboard/admin/builders",
+        },
+        {
           title: "Company Profile / Settings",
           url: "/dashboard/admin/settings",
         },
@@ -202,26 +230,106 @@ const data = {
   ],
   projects: [
     {
-      name: "My Profile",
-      url: "/account",
+      name: "Feature 1",
+      url: "/feature1",
       icon: User,
     },
     {
-      name: "Sign Out",
-      url: "/signout",
-      icon: LogOut,
+      name: "Feature 2", 
+      url: "/feature2",
+      icon: Plus,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { hasPermission, isAdmin, isSupervisor } = usePermissions()
+  
+  // Filter and transform navigation items based on permissions
+  const filteredNavMain = data.navMain
+    .filter(item => {
+      // Admin section - only show for users with admin access
+      if (item.title === "Admin") {
+        return hasPermission("admin.access")
+      }
+      
+      // Contractors section - filter based on permissions
+      if (item.title === "Contractors") {
+        return hasPermission("contractors.view")
+      }
+      
+      // Builders section - filter based on permissions
+      if (item.title === "Builders") {
+        return hasPermission("builders.view")
+      }
+      
+      return true
+    })
+    .map(item => {
+      // Transform Contractors section based on permissions
+      if (item.title === "Contractors") {
+        if (isSupervisor) {
+          // Supervisors get read-only access
+          return {
+            ...item,
+            items: [
+              {
+                title: "All Contractors",
+                url: "/dashboard/contractors",
+              }
+            ]
+          }
+        } else if (isAdmin) {
+          // Admins get full access - redirect to admin contractors if needed
+          return {
+            ...item,
+            items: [
+              {
+                title: "All Contractors",
+                url: "/dashboard/contractors",
+              }
+            ]
+          }
+        }
+      }
+      
+      // Transform Builders section based on permissions
+      if (item.title === "Builders") {
+        if (isSupervisor) {
+          // Supervisors get read-only access
+          return {
+            ...item,
+            items: [
+              {
+                title: "All Builders",
+                url: "/dashboard/builders",
+              }
+            ]
+          }
+        } else if (isAdmin) {
+          // Admins get full access - redirect to admin builders
+          return {
+            ...item,
+            items: [
+              {
+                title: "Manage Builders",
+                url: "/dashboard/admin/builders",
+              }
+            ]
+          }
+        }
+      }
+      
+      return item
+    })
+  
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={filteredNavMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

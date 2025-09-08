@@ -25,8 +25,9 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
+  accounts   Account[]
+  sessions   Session[]
+  Contractor Contractor?
 }
 
 model Account {
@@ -72,4 +73,92 @@ enum Role {
   ADMIN
   SUPERVISOR
   WORKER
+}
+
+/// =====================
+/// Milestone 1: Masters
+/// =====================
+
+model Builder {
+  id          String  @id @default(cuid())
+  name        String
+  /// Excel: "Company code" (must be unique)
+  companyCode String  @unique
+  abn         String? @db.VarChar(20)
+  phone       String? @db.VarChar(30)
+  address     String?
+  website     String?
+
+  /// Excel: default rates (optional, can be overridden per worker/week)
+  supervisorRate Decimal? @db.Decimal(10, 2)
+  tieHandRate    Decimal? @db.Decimal(10, 2)
+  tonnageRate    Decimal? @db.Decimal(10, 2)
+
+  /// Excel: "Person" & "email" (optional)
+  contactPerson String?
+  contactEmail  String?
+
+  locations BuilderLocation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([companyCode])
+}
+
+model BuilderLocation {
+  id String @id @default(cuid())
+
+  builderId String
+  builder   Builder @relation(fields: [builderId], references: [id], onDelete: Cascade)
+
+  /// Human label, e.g. "317 Stafford Road" or site nickname
+  label   String
+  address String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Prevent duplicate labels within the same builder
+  @@unique([builderId, label])
+  @@index([builderId])
+}
+
+model Contractor {
+  id String @id @default(cuid())
+
+  /// Link to your existing User (optional until portal access is given)
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  /// From ABNContractors sheet
+  email     String? @unique
+  nickname  String  @unique
+  firstName String?
+  lastName  String?
+  fullName  String?
+
+  hourlyRate Decimal @db.Decimal(10, 2)
+
+  /// Business & payment
+  abn         String? @db.VarChar(20)
+  bankName    String?
+  bsb         String? @db.VarChar(10)
+  accountNo   String? @db.VarChar(32)
+  phone       String? @db.VarChar(30)
+  homeAddress String?
+
+  /// Profile
+  position   String? // e.g., "Steel fixer", "Welder"
+  experience String? // free-form, e.g., "2 years"
+
+  /// Excel "on off" -> active
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nickname])
+  @@index([active])
 }

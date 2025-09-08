@@ -6,7 +6,7 @@ export function composeMiddleware(
   middlewares: MiddlewareFunction[],
   handler: ApiHandler
 ) {
-  return async (req: ApiRequest): Promise<NextResponse> => {
+  return async (req: ApiRequest, context?: any): Promise<NextResponse> => {
     try {
       let index = 0
 
@@ -15,7 +15,7 @@ export function composeMiddleware(
           const middleware = middlewares[index++]
           return await middleware(req, next)
         } else {
-          return await handler(req)
+          return await handler(req, context)
         }
       }
 
@@ -53,6 +53,6 @@ export function createMethodRoute(
   const composedHandler = composeMiddleware(middlewares, handler)
   
   return {
-    [method]: composedHandler
+    [method]: (req: ApiRequest, context?: any) => composedHandler(req, context)
   }
 }
