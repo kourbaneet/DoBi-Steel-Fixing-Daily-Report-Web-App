@@ -28,6 +28,7 @@ model User {
   accounts   Account[]
   sessions   Session[]
   Contractor Contractor?
+  dockets Docket[]
 }
 
 model Account {
@@ -99,6 +100,7 @@ model Builder {
   contactEmail  String?
 
   locations BuilderLocation[]
+  dockets Docket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,6 +121,8 @@ model BuilderLocation {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  dockets Docket[]
 
   /// Prevent duplicate labels within the same builder
   @@unique([builderId, label])
@@ -159,6 +163,73 @@ model Contractor {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  docketEntry DocketEntry[]
+
   @@index([nickname])
   @@index([active])
+}
+
+
+
+/// =====================
+/// Milestone 2 — Daily Dockets
+/// =====================
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+model Docket {
+  id          String   @id @default(cuid())
+  date        DateTime
+  builderId   String
+  builder     Builder  @relation(fields: [builderId], references: [id], onDelete: Restrict)
+  locationId  String
+  location    BuilderLocation @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  scheduleNo  String?
+  description String?
+
+  supervisorId String
+  supervisor   User     @relation(fields: [supervisorId], references: [id], onDelete: Restrict)
+
+  siteManagerName        String?
+  siteManagerSignatureUrl String? // store data URL or uploaded file URL
+
+  media       DocketMedia[]
+  entries     DocketEntry[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+  @@index([builderId, locationId, date])
+}
+
+model DocketEntry {
+  id            String      @id @default(cuid())
+  docketId      String
+  docket        Docket      @relation(fields: [docketId], references: [id], onDelete: Cascade)
+  contractorId  String
+  contractor    Contractor  @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+
+  // allow both types same day
+  tonnageHours   Decimal    @default(0) @db.Decimal(6,2)
+  dayLabourHours Decimal    @default(0) @db.Decimal(6,2)
+
+  createdAt     DateTime    @default(now())
+
+  @@index([docketId])
+  @@index([contractorId])
+}
+
+model DocketMedia {
+  id        String   @id @default(cuid())
+  docketId  String
+  docket    Docket   @relation(fields: [docketId], references: [id], onDelete: Cascade)
+  type      MediaType
+  url       String
+  caption   String?
+  createdAt DateTime @default(now())
 }
