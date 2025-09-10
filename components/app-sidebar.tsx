@@ -29,6 +29,7 @@ import {
   UserPlus,
   Cog,
   LogOut,
+  Calendar,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -65,42 +66,25 @@ const data = {
     },
     {
       title: "Dockets",
-      url: "/dockets",
+      url: "/dashboard/dockets",
       icon: FileText,
-      items: [
-        {
-          title: "New Docket",
-          url: "/dockets/new",
-        },
-        {
-          title: "My Drafts",
-          url: "/dockets?status=draft&me=1",
-        },
-        {
-          title: "Submitted by Me",
-          url: "/dockets?creator=me",
-        },
+      items:[
         {
           title: "All Dockets",
-          url: "/dockets",
+          url: "/dashboard/dockets",
         },
+      ]
+    },
+    {
+      title: "Weekly Timesheets",
+      url: "/dashboard/weekly",
+      icon: Calendar,
+      items:[
         {
-          title: "Pending Approval",
-          url: "/dockets/pending",
+          title: "View Timesheets",
+          url: "/dashboard/weekly",
         },
-        {
-          title: "Approved",
-          url: "/dockets?status=approved",
-        },
-        {
-          title: "Rejected",
-          url: "/dockets?status=rejected",
-        },
-        {
-          title: "Search",
-          url: "/dockets/search",
-        },
-      ],
+      ]
     },
     {
       title: "Projects",
@@ -182,7 +166,7 @@ const data = {
       ],
     },
     {
-      title: "Contractors", 
+      title: "Contractors",
       url: "/dashboard/contractors",
       icon: Users,
       items: [
@@ -201,7 +185,7 @@ const data = {
           title: "All Builders",
           url: "/dashboard/builders",
         },
-        
+
       ],
     },
     {
@@ -235,7 +219,7 @@ const data = {
       icon: User,
     },
     {
-      name: "Feature 2", 
+      name: "Feature 2",
       url: "/feature2",
       icon: Plus,
     },
@@ -244,7 +228,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasPermission, isAdmin, isSupervisor } = usePermissions()
-  
+
   // Filter and transform navigation items based on permissions
   const filteredNavMain = data.navMain
     .filter(item => {
@@ -252,17 +236,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (item.title === "Admin") {
         return hasPermission("admin.access")
       }
-      
+
+      // Dockets section - filter based on permissions (Admin and Supervisor only)
+      if (item.title === "Dockets") {
+        return hasPermission("dockets.view") || isAdmin || isSupervisor
+      }
+
+      // Weekly Timesheets section - filter based on permissions (Admin and Supervisor only)
+      if (item.title === "Weekly Timesheets") {
+        return hasPermission("dockets.view") || isAdmin || isSupervisor
+      }
+
       // Contractors section - filter based on permissions
       if (item.title === "Contractors") {
         return hasPermission("contractors.view")
       }
-      
+
       // Builders section - filter based on permissions
       if (item.title === "Builders") {
         return hasPermission("builders.view")
       }
-      
+
       return true
     })
     .map(item => {
@@ -292,7 +286,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }
         }
       }
-      
+
       // Transform Builders section based on permissions
       if (item.title === "Builders") {
         if (isSupervisor) {
@@ -319,10 +313,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }
         }
       }
-      
+
       return item
     })
-  
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

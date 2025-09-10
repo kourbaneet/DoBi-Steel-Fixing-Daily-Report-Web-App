@@ -14,6 +14,7 @@ export function sanitizeBuilder(builder: any): BuilderSummary {
     createdAt: builder.createdAt,
     updatedAt: builder.updatedAt,
     locationCount: builder._count?.locations || 0,
+    locations: builder.locations || [],
   }
 }
 

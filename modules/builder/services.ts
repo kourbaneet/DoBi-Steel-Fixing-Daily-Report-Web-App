@@ -46,6 +46,16 @@ export class BuilderService {
       PRISMA.builder.findMany({
         where,
         include: {
+          locations: {
+            select: {
+              id: true,
+              label: true,
+              address: true,
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
           _count: {
             select: { locations: true }
           }

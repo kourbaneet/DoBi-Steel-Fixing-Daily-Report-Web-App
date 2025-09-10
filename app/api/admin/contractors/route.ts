@@ -36,18 +36,18 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { nickname: { contains: search, mode: "insensitive" } },
-        { firstName: { contains: search, mode: "insensitive" } },
-        { lastName: { contains: search, mode: "insensitive" } },
-        { fullName: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { position: { contains: search, mode: "insensitive" } },
-        { abn: { contains: search, mode: "insensitive" } },
+        { nickname: { contains: search } },
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
+        { fullName: { contains: search } },
+        { email: { contains: search } },
+        { position: { contains: search } },
+        { abn: { contains: search } },
       ]
     }
 
     if (position) {
-      where.position = { contains: position, mode: "insensitive" }
+      where.position = { contains: position }
     }
 
     if (active !== undefined) {

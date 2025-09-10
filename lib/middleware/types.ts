@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Session } from 'next-auth'
 
 export interface ApiRequest extends NextRequest {
   user?: any
+  session?: Session | null
   validatedBody?: any
   params?: Record<string, string>
 }

@@ -15,7 +15,7 @@ export const createContractorSchema = z.object({
   bsb: z.string().max(10, "BSB too long").optional(),
   accountNo: z.string().max(32, "Account number too long").optional(),
   homeAddress: z.string().max(500, "Address too long").optional(),
-  active: z.boolean().optional().default(true),
+  active: z.boolean(),
 })
 
 export const updateContractorSchema = createContractorSchema.partial().extend({

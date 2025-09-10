@@ -12,6 +12,10 @@ export type Permission =
   | "contractors.create"
   | "contractors.edit"
   | "contractors.delete"
+  | "dockets.view"
+  | "dockets.create"
+  | "dockets.edit"
+  | "dockets.delete"
   | "admin.access"
   | "users.manage"
 
@@ -28,12 +32,20 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "contractors.create",
     "contractors.edit", 
     "contractors.delete",
+    "dockets.view",
+    "dockets.create",
+    "dockets.edit",
+    "dockets.delete",
     "admin.access",
     "users.manage"
   ],
   SUPERVISOR: [
     "builders.view",
-    "contractors.view"
+    "contractors.view",
+    "dockets.view",
+    "dockets.create",
+    "dockets.edit",
+    "dockets.delete"
   ],
   WORKER: []
 }

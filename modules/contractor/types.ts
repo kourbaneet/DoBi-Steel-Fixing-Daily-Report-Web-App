@@ -35,7 +35,7 @@ export interface CreateContractorData {
   bsb?: string
   accountNo?: string
   homeAddress?: string
-  active?: boolean
+  active: boolean
 }
 
 export interface UpdateContractorData extends Partial<CreateContractorData> {

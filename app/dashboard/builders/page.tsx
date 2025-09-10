@@ -418,7 +418,7 @@ export default function BuildersPage() {
         onSuccess={handleCreateSuccess}
       />
 
-      {selectedBuilder && (
+      {selectedBuilderForEdit && (
         <>
           <EditBuilderModal
             open={editModalOpen}
@@ -427,7 +427,7 @@ export default function BuildersPage() {
               setSelectedBuilder(null)
             }}
             onSuccess={handleEditSuccess}
-            builder={selectedBuilder}
+            builder={selectedBuilderForEdit}
           />
 
           <DeleteBuilderModal

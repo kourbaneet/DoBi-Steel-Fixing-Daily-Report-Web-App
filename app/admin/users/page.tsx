@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers()
-  }, [search, roleFilter, emailVerifiedFilter])
+  }, [search, roleFilter, emailVerifiedFilter, fetchUsers])
 
   // Clear messages after 5 seconds
   useEffect(() => {

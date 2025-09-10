@@ -7,7 +7,7 @@ import { updateContractorSchema } from "@/modules/contractor/validations"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { contractorId: string } }
+  { params }: { params: Promise<{ contractorId: string }> }
 ) {
   try {
     const session = await auth()
@@ -19,8 +19,9 @@ export async function GET(
       return apiResponse.forbidden("Insufficient permissions to view contractors")
     }
 
+    const { contractorId } = await params;
     const contractor = await PRISMA.contractor.findUnique({
-      where: { id: params.contractorId },
+      where: { id: contractorId },
       include: {
         user: true,
       },
@@ -47,7 +48,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { contractorId: string } }
+  { params }: { params: Promise<{ contractorId: string }> }
 ) {
   try {
     const session = await auth()
@@ -60,14 +61,15 @@ export async function PUT(
     }
 
     const body = await request.json()
+    const { contractorId } = await params;
     const validatedData = updateContractorSchema.parse({
       ...body,
-      id: params.contractorId,
+      id: contractorId,
     })
 
     // Check if contractor exists
     const existingContractor = await PRISMA.contractor.findUnique({
-      where: { id: params.contractorId },
+      where: { id: contractorId },
     })
 
     if (!existingContractor) {
@@ -99,7 +101,7 @@ export async function PUT(
     const { id, ...updateData } = validatedData
     
     const contractor = await PRISMA.contractor.update({
-      where: { id: params.contractorId },
+      where: { id: contractorId },
       data: {
         ...updateData,
         email: validatedData.email || null,
@@ -126,7 +128,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { contractorId: string } }
+  { params }: { params: Promise<{ contractorId: string }> }
 ) {
   try {
     const session = await auth()
@@ -138,9 +140,10 @@ export async function DELETE(
       return apiResponse.forbidden("Insufficient permissions to delete contractors")
     }
 
+    const { contractorId } = await params;
     // Check if contractor exists
     const existingContractor = await PRISMA.contractor.findUnique({
-      where: { id: params.contractorId },
+      where: { id: contractorId },
     })
 
     if (!existingContractor) {
@@ -148,7 +151,7 @@ export async function DELETE(
     }
 
     await PRISMA.contractor.delete({
-      where: { id: params.contractorId },
+      where: { id: contractorId },
     })
 
     return apiResponse.success("Contractor deleted successfully", null)

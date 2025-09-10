@@ -7,6 +7,7 @@ import { Crisp } from "crisp-sdk-web";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
+import { Toaster as SonnerToaster } from "sonner";
 import { Tooltip } from "react-tooltip";
 import config from "@/config";
 
@@ -67,6 +68,9 @@ const ClientLayout = ({ children }: { children: ReactNode }) => {
             duration: 3000,
           }}
         />
+        
+        {/* Sonner toasts for newer components */}
+        <SonnerToaster richColors />
 
         {/* Show a tooltip if any JSX element has these 2 attributes: data-tooltip-id="tooltip" data-tooltip-content="" */}
         <Tooltip

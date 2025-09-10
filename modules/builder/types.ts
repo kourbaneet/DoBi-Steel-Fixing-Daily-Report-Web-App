@@ -33,6 +33,11 @@ export type BuilderSummary = {
   createdAt: Date
   updatedAt: Date
   locationCount: number
+  locations?: {
+    id: string
+    label: string
+    address: string | null
+  }[]
 }
 
 export type BuilderDetail = BuilderWithLocations
