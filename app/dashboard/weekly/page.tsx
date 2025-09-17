@@ -165,19 +165,19 @@ export default function WeeklyTimesheetsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="flex-1 space-y-4 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Weekly Timesheets</h1>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Weekly Timesheets</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             View aggregated contractor hours for Monday through Saturday
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleExport} variant="outline" size="sm">
+        <div className="flex-shrink-0">
+          <Button onClick={handleExport} variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            <span className="sm:inline">Export CSV</span>
           </Button>
         </div>
       </div>
@@ -185,17 +185,17 @@ export default function WeeklyTimesheetsPage() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Filter className="h-5 w-5 mr-2" />
+          <CardTitle className="text-lg sm:text-xl flex items-center">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Filters
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Filter weekly timesheets by week, builder, location, or contractor
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="sm:col-span-1">
               <label className="text-sm font-medium mb-2 block">
                 <Calendar className="h-4 w-4 inline mr-1" />
                 Week
@@ -205,16 +205,18 @@ export default function WeeklyTimesheetsPage() {
                 placeholder="2025-W36"
                 value={week}
                 onChange={(e) => setWeek(e.target.value)}
+                className="text-sm"
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-1">
               <label className="text-sm font-medium mb-2 block">Builder</label>
               <Select value={selectedBuilderId} onValueChange={setSelectedBuilderId}>
-                <SelectTrigger>
-                  <SelectValue placeholder={selectedBuilderId ? builders.find(b => b.id === selectedBuilderId)?.name : "All builders"} />
+                <SelectTrigger className="w-full text-sm">
+                  <SelectValue placeholder="All builders" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All builders</SelectItem>
                   {builders.length === 0 ? (
                     <div className="p-2 text-sm text-muted-foreground text-center">
                       No builders available
@@ -223,8 +225,8 @@ export default function WeeklyTimesheetsPage() {
                     builders.map((builder) => (
                       <SelectItem key={builder.id} value={builder.id}>
                         <div className="flex items-center">
-                          <span>{builder.name}</span>
-                          <Badge variant="outline" className="ml-2 text-xs">
+                          <span className="truncate">{builder.name}</span>
+                          <Badge variant="outline" className="ml-2 text-xs hidden sm:inline-flex">
                             {builder.companyCode}
                           </Badge>
                         </div>
@@ -235,18 +237,19 @@ export default function WeeklyTimesheetsPage() {
               </Select>
             </div>
 
-            <div>
+            <div className="sm:col-span-1">
               <label className="text-sm font-medium mb-2 block">Location</label>
-              <Select 
-                value={selectedLocationId} 
+              <Select
+                value={selectedLocationId}
                 onValueChange={setSelectedLocationId}
                 disabled={!selectedBuilderId || selectedBuilderId === "all"}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder={selectedLocationId ? locations.find(l => l.id === selectedLocationId)?.label : "All locations"} />
+                <SelectTrigger className="w-full text-sm">
+                  <SelectValue placeholder="All locations" />
                 </SelectTrigger>
                 <SelectContent>
-                  {!selectedBuilderId ? (
+                  <SelectItem value="all">All locations</SelectItem>
+                  {!selectedBuilderId || selectedBuilderId === "all" ? (
                     <div className="p-2 text-sm text-muted-foreground text-center">
                       Select a builder first
                     </div>
@@ -257,7 +260,7 @@ export default function WeeklyTimesheetsPage() {
                   ) : (
                     locations.map((location) => (
                       <SelectItem key={location.id} value={location.id}>
-                        {location.label}
+                        <span className="truncate">{location.label}</span>
                       </SelectItem>
                     ))
                   )}
@@ -265,28 +268,32 @@ export default function WeeklyTimesheetsPage() {
               </Select>
             </div>
 
-            <div>
+            <div className="sm:col-span-1">
               <label className="text-sm font-medium mb-2 block">Search Contractor</label>
               <Input
                 type="text"
                 placeholder="Search by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="text-sm"
               />
             </div>
 
-            <div className="flex items-end gap-2">
-              <Button onClick={handleSearch} disabled={loading} className="flex-1">
-                {loading ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Search className="h-4 w-4 mr-2" />
-                )}
-                Search
-              </Button>
-              <Button onClick={resetFilters} variant="outline" size="sm">
-                Reset
-              </Button>
+            <div className="sm:col-span-2 lg:col-span-1 xl:col-span-1 flex flex-col sm:items-end sm:justify-end gap-2">
+              <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:gap-2 sm:w-auto">
+                <Button onClick={handleSearch} disabled={loading} size="sm" className="text-sm">
+                  {loading ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
+                  <span className="hidden sm:inline">Search</span>
+                  <span className="sm:hidden">Search</span>
+                </Button>
+                <Button onClick={resetFilters} variant="outline" size="sm" className="text-sm">
+                  Reset
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -296,72 +303,79 @@ export default function WeeklyTimesheetsPage() {
       {weeklyData && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">
-              Week of {weeklyData.weekStart} to {weeklyData.weekEnd}
+            <CardTitle className="text-lg sm:text-xl">
+              <span className="hidden sm:inline">Week of {weeklyData.weekStart} to {weeklyData.weekEnd}</span>
+              <span className="sm:hidden">{weeklyData.weekStart} - {weeklyData.weekEnd}</span>
             </CardTitle>
-            <CardDescription>
-              {weeklyData.rows.length} contractor{weeklyData.rows.length !== 1 ? 's' : ''} • 
-              {weeklyData.totals.hours} total hours • 
-              ${weeklyData.totals.amount} total amount
+            <CardDescription className="text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <span>{weeklyData.rows.length} contractor{weeklyData.rows.length !== 1 ? 's' : ''}</span>
+                <span className="hidden sm:inline">•</span>
+                <span>{weeklyData.totals.hours} total hours</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="font-semibold">${weeklyData.totals.amount} total amount</span>
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[1200px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[150px]">Contractor</TableHead>
-                    <TableHead className="min-w-[120px]">Builder</TableHead>
-                    <TableHead className="min-w-[120px]">Location</TableHead>
-                    <TableHead className="text-center">Mon</TableHead>
-                    <TableHead className="text-center">Tue</TableHead>
-                    <TableHead className="text-center">Wed</TableHead>
-                    <TableHead className="text-center">Thu</TableHead>
-                    <TableHead className="text-center">Fri</TableHead>
-                    <TableHead className="text-center">Sat</TableHead>
-                    <TableHead className="text-center">Tonnage</TableHead>
-                    <TableHead className="text-center">Day Labour</TableHead>
-                    <TableHead className="text-center">Total Hrs</TableHead>
-                    <TableHead className="text-center">Rate</TableHead>
-                    <TableHead className="text-center">Amount</TableHead>
+                    <TableHead className="min-w-[120px] sticky left-0 bg-background">Contractor</TableHead>
+                    <TableHead className="min-w-[100px]">Builder</TableHead>
+                    <TableHead className="min-w-[100px]">Location</TableHead>
+                    <TableHead className="text-center w-[60px]">Mon</TableHead>
+                    <TableHead className="text-center w-[60px]">Tue</TableHead>
+                    <TableHead className="text-center w-[60px]">Wed</TableHead>
+                    <TableHead className="text-center w-[60px]">Thu</TableHead>
+                    <TableHead className="text-center w-[60px]">Fri</TableHead>
+                    <TableHead className="text-center w-[60px]">Sat</TableHead>
+                    <TableHead className="text-center w-[80px]">Tonnage</TableHead>
+                    <TableHead className="text-center w-[80px]">Day Labour</TableHead>
+                    <TableHead className="text-center w-[80px]">Total Hrs</TableHead>
+                    <TableHead className="text-center w-[70px]">Rate</TableHead>
+                    <TableHead className="text-center w-[90px]">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {weeklyData.rows.map((row) => (
                     <TableRow key={`${row.contractorId}-${row.builderId}-${row.locationId}`}>
-                      <TableCell className="font-medium">
-                        <div>
-                          <div>{getContractorDisplayName(row)}</div>
-                          <div className="text-xs text-muted-foreground">
+                      <TableCell className="font-medium sticky left-0 bg-background min-w-0">
+                        <div className="min-w-0">
+                          <div className="text-sm truncate">{getContractorDisplayName(row)}</div>
+                          <div className="text-xs text-muted-foreground truncate">
                             {row.nickname}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{row.builderName}</div>
-                          <div className="text-xs text-muted-foreground">
+                      <TableCell className="min-w-0">
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm truncate">{row.builderName}</div>
+                          <div className="text-xs text-muted-foreground truncate">
                             {row.companyCode}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{row.locationLabel}</TableCell>
-                      <TableCell className="text-center">{row.mon}</TableCell>
-                      <TableCell className="text-center">{row.tue}</TableCell>
-                      <TableCell className="text-center">{row.wed}</TableCell>
-                      <TableCell className="text-center">{row.thu}</TableCell>
-                      <TableCell className="text-center">{row.fri}</TableCell>
-                      <TableCell className="text-center">{row.sat}</TableCell>
-                      <TableCell className="text-center">{row.tonnageHours}</TableCell>
-                      <TableCell className="text-center">{row.dayLabourHours}</TableCell>
-                      <TableCell className="text-center font-semibold">{row.totalHours}</TableCell>
-                      <TableCell className="text-center">${row.rate}</TableCell>
-                      <TableCell className="text-center font-semibold">${row.totalAmount}</TableCell>
+                      <TableCell className="min-w-0">
+                        <span className="text-sm truncate">{row.locationLabel}</span>
+                      </TableCell>
+                      <TableCell className="text-center text-sm">{row.mon || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.tue || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.wed || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.thu || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.fri || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.sat || '0'}</TableCell>
+                      <TableCell className="text-center text-sm">{row.tonnageHours}</TableCell>
+                      <TableCell className="text-center text-sm">{row.dayLabourHours}</TableCell>
+                      <TableCell className="text-center font-semibold text-sm">{row.totalHours}</TableCell>
+                      <TableCell className="text-center text-sm">${row.rate}</TableCell>
+                      <TableCell className="text-center font-semibold text-sm">${row.totalAmount}</TableCell>
                     </TableRow>
                   ))}
                   {weeklyData.rows.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={14} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={14} className="text-center py-8 text-muted-foreground text-sm">
                         No timesheet data found for the selected criteria
                       </TableCell>
                     </TableRow>
@@ -372,9 +386,9 @@ export default function WeeklyTimesheetsPage() {
 
             {/* Totals */}
             {weeklyData.rows.length > 0 && (
-              <div className="mt-6 flex justify-end">
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end">
+                <div className="bg-muted/50 p-3 sm:p-4 rounded-lg w-full max-w-xs sm:max-w-none sm:w-auto">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
                     <div className="text-right">
                       <span className="font-medium">Total Hours:</span>
                     </div>
@@ -382,7 +396,7 @@ export default function WeeklyTimesheetsPage() {
                     <div className="text-right">
                       <span className="font-medium">Total Amount:</span>
                     </div>
-                    <div className="font-bold text-lg">${weeklyData.totals.amount}</div>
+                    <div className="font-bold text-base sm:text-lg">${weeklyData.totals.amount}</div>
                   </div>
                 </div>
               </div>
@@ -393,9 +407,9 @@ export default function WeeklyTimesheetsPage() {
 
       {loading && (
         <Card>
-          <CardContent className="flex items-center justify-center py-8">
-            <RefreshCw className="h-6 w-6 animate-spin mr-2" />
-            Loading weekly timesheet data...
+          <CardContent className="flex items-center justify-center py-6 sm:py-8 px-4">
+            <RefreshCw className="h-5 w-5 sm:h-6 sm:w-6 animate-spin mr-2" />
+            <span className="text-sm sm:text-base">Loading weekly timesheet data...</span>
           </CardContent>
         </Card>
       )}
