@@ -55,21 +55,21 @@ export function DeleteBuilderLocationModal({
 
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="mx-4 sm:mx-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Location</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-base sm:text-lg">Delete Location</AlertDialogTitle>
+          <AlertDialogDescription className="text-sm">
             Are you sure you want to delete the location <strong>&quot;{location.label}&quot;</strong>?
             <br /><br />
             This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+          <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={loading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
           >
             {loading ? "Deleting..." : "Delete Location"}
           </AlertDialogAction>

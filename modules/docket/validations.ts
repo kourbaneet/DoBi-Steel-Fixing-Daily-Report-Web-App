@@ -198,12 +198,12 @@ export const getDocketsSchema = z.object({
   sortBy: z
     .string()
     .optional()
-    .refine((val) => !val || SORT.ALLOWED_SORT_FIELDS.includes(val), "Invalid sortBy field")
+    .refine((val) => !val || SORT.ALLOWED_SORT_FIELDS.includes(val as any), "Invalid sortBy field")
     .transform((val) => (val as any) || SORT.DEFAULT_SORT_BY),
   sortOrder: z
     .string()
     .optional()
-    .refine((val) => !val || SORT.ALLOWED_SORT_ORDERS.includes(val), "Invalid sortOrder")
+    .refine((val) => !val || SORT.ALLOWED_SORT_ORDERS.includes(val as any), "Invalid sortOrder")
     .transform((val) => (val as 'asc' | 'desc') || SORT.DEFAULT_SORT_ORDER),
 })
 

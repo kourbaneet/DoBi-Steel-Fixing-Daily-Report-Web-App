@@ -166,7 +166,7 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
         <div className="flex items-center space-x-2">
           <Skeleton className="h-8 w-8" />
           <Skeleton className="h-8 w-48" />
@@ -181,15 +181,15 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
 
   if (!builder) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="text-center py-8">
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
+        <div className="text-center py-12 px-4">
           <Building className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">Builder not found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-4 text-base font-semibold text-gray-900">Builder not found</h3>
+          <p className="mt-2 text-sm text-gray-500">
             The builder you&apos;re looking for doesn&apos;t exist.
           </p>
           <div className="mt-6">
-            <Button onClick={() => router.push("/dashboard/admin/builders")}>
+            <Button onClick={() => router.push("/dashboard/admin/builders")} size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Builders
             </Button>
@@ -201,7 +201,7 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
 
   return (
     <ProtectedRoute permission="builders.view">
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>
@@ -220,26 +220,26 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">{builder.name}</h2>
-            <div className="flex items-center space-x-4 text-muted-foreground">
-              <span>Company Code: <Badge variant="outline">{builder.companyCode}</Badge></span>
-              <div className="flex items-center">
-                <Calendar className="mr-1 h-3 w-3" />
-                <span className="text-sm">Updated {new Date(builder.updatedAt).toLocaleDateString()}</span>
-              </div>
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{builder.name}</h1>
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 text-muted-foreground mt-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">Company Code:</span>
+              <Badge variant="outline" className="text-xs">{builder.companyCode}</Badge>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Calendar className="h-3 w-3" />
+              <span className="text-xs sm:text-sm">Updated {new Date(builder.updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
         {/* Left Pane - Builder Details */}
-        <div className="space-y-4">
+        <div className="space-y-4 sm:space-y-6 min-w-0">
           {/* Basic Information */}
           <Card>
             <CardHeader>
@@ -249,34 +249,37 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
                   Basic Information
                 </CardTitle>
                 <PermissionWrapper permission="builders.edit">
-                  <Button onClick={() => setEditBuilderModalOpen(true)} size="sm">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
+                  <Button onClick={() => setEditBuilderModalOpen(true)} size="sm" className="text-sm">
+                    <Edit className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">Edit</span>
+                    <span className="xs:hidden">Edit</span>
                   </Button>
                 </PermissionWrapper>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Company Name</label>
-                <p className="text-sm">{builder.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Company Code</label>
-                <p className="text-sm">{builder.companyCode}</p>
-              </div>
-              {builder.abn && (
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">ABN</label>
-                  <p className="text-sm">{builder.abn}</p>
+                  <label className="text-sm font-medium text-muted-foreground">Company Name</label>
+                  <p className="text-sm break-words">{builder.name}</p>
                 </div>
-              )}
-              {builder.address && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Address</label>
-                  <p className="text-sm">{builder.address}</p>
+                  <label className="text-sm font-medium text-muted-foreground">Company Code</label>
+                  <p className="text-sm">{builder.companyCode}</p>
                 </div>
-              )}
+                {builder.abn && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">ABN</label>
+                    <p className="text-sm">{builder.abn}</p>
+                  </div>
+                )}
+                {builder.address && (
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">Address</label>
+                    <p className="text-sm break-words">{builder.address}</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -285,40 +288,42 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {builder.contactPerson && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Contact Person</label>
-                  <p className="text-sm">{builder.contactPerson}</p>
-                </div>
-              )}
-              {builder.phone && (
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="space-y-3">
+                {builder.contactPerson && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                    <p className="text-sm">{builder.phone}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Contact Person</label>
+                    <p className="text-sm break-words">{builder.contactPerson}</p>
                   </div>
-                </div>
-              )}
-              {builder.contactEmail && (
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <p className="text-sm">{builder.contactEmail}</p>
+                )}
+                {builder.phone && (
+                  <div className="flex items-start space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                      <p className="text-sm break-all">{builder.phone}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-              {builder.website && (
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Website</label>
-                    <p className="text-sm">{builder.website}</p>
+                )}
+                {builder.contactEmail && (
+                  <div className="flex items-start space-x-2">
+                    <Mail className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <label className="text-sm font-medium text-muted-foreground">Email</label>
+                      <p className="text-sm break-all">{builder.contactEmail}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {builder.website && (
+                  <div className="flex items-start space-x-2">
+                    <Globe className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <label className="text-sm font-medium text-muted-foreground">Website</label>
+                      <p className="text-sm break-all">{builder.website}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -330,34 +335,37 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
                 Default Rates
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {builder.supervisorRate && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Supervisor Rate</label>
-                  <p className="text-sm">${builder.supervisorRate.toString()}</p>
-                </div>
-              )}
-              {builder.tieHandRate && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Tie Hand Rate</label>
-                  <p className="text-sm">${builder.tieHandRate.toString()}</p>
-                </div>
-              )}
-              {builder.tonnageRate && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Tonnage Rate</label>
-                  <p className="text-sm">${builder.tonnageRate.toString()}</p>
-                </div>
-              )}
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-3">
+                {builder.supervisorRate && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Supervisor Rate</label>
+                    <p className="text-sm font-mono">${builder.supervisorRate.toString()}</p>
+                  </div>
+                )}
+                {builder.tieHandRate && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Tie Hand Rate</label>
+                    <p className="text-sm font-mono">${builder.tieHandRate.toString()}</p>
+                  </div>
+                )}
+                {builder.tonnageRate && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Tonnage Rate</label>
+                    <p className="text-sm font-mono">${builder.tonnageRate.toString()}</p>
+                  </div>
+                )}
+              </div>
               {!builder.supervisorRate && !builder.tieHandRate && !builder.tonnageRate && (
-                <p className="text-sm text-muted-foreground">No default rates set</p>
+                <p className="text-sm text-muted-foreground italic">No default rates set</p>
               )}
             </CardContent>
           </Card>
         </div>
 
         {/* Right Pane - Locations */}
-        <Card>
+        <div className="min-w-0">
+        <Card className="h-fit">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center">
@@ -365,9 +373,10 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
                 Locations ({builder.locations.length})
               </CardTitle>
               <PermissionWrapper permission="builders.locations.create">
-                <Button onClick={() => setCreateLocationModalOpen(true)} size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Location
+                <Button onClick={() => setCreateLocationModalOpen(true)} size="sm" className="text-sm">
+                  <Plus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden xs:inline">Add Location</span>
+                  <span className="xs:hidden">Add</span>
                 </Button>
               </PermissionWrapper>
             </div>
@@ -390,26 +399,36 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
 
             {/* Locations Table */}
             {filteredLocations.length > 0 ? (
+              <div className="overflow-x-auto -mx-3 sm:mx-0">
+                <div className="min-w-[500px] px-3 sm:px-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Label</TableHead>
-                    <TableHead>Address</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="min-w-[120px]">Label</TableHead>
+                    <TableHead className="min-w-[150px] hidden sm:table-cell">Address</TableHead>
+                    <TableHead className="min-w-[100px] hidden md:table-cell">Created</TableHead>
+                    <TableHead className="text-right w-[60px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredLocations.map((location) => (
                     <TableRow key={location.id}>
-                      <TableCell className="font-medium">{location.label}</TableCell>
-                      <TableCell>{location.address || "—"}</TableCell>
-                      <TableCell>{new Date(location.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="font-medium pr-2">
+                        <div className="min-w-0">
+                          <div className="truncate">{location.label}</div>
+                          <div className="sm:hidden text-xs text-muted-foreground mt-1 truncate">
+                            {location.address || "No address"}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell truncate">{location.address || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{new Date(location.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button variant="ghost" className="h-8 w-8 p-0 touch-manipulation">
                               <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -435,32 +454,43 @@ export default function BuilderDetailPage({ params }: BuilderDetailPageProps) {
                   ))}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             ) : builder.locations.length === 0 ? (
               /* Empty State - No Locations */
-              <div className="text-center py-8">
+              <div className="text-center py-8 px-4">
                 <MapPin className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-semibold text-gray-900">No locations yet</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <h3 className="mt-4 text-base font-semibold text-gray-900">No locations yet</h3>
+                <p className="mt-2 text-sm text-gray-500">
                   Add your first location to organize work sites for this builder.
                 </p>
-                <div className="mt-6">
-                  <Button onClick={() => setCreateLocationModalOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add First Location
-                  </Button>
-                </div>
+                <PermissionWrapper permission="builders.locations.create">
+                  <div className="mt-6">
+                    <Button onClick={() => setCreateLocationModalOpen(true)} size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add First Location
+                    </Button>
+                  </div>
+                </PermissionWrapper>
               </div>
             ) : (
               /* No Search Results */
-              <div className="text-center py-8">
+              <div className="text-center py-8 px-4">
                 <Search className="mx-auto h-8 w-8 text-gray-400" />
                 <p className="mt-2 text-sm text-gray-500">
                   No locations found matching &quot;{locationSearch}&quot;
                 </p>
+                <button
+                  onClick={() => setLocationSearch('')}
+                  className="mt-3 text-sm text-primary hover:underline"
+                >
+                  Clear search
+                </button>
               </div>
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
 
 

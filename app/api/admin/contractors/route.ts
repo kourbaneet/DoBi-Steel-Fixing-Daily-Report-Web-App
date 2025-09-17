@@ -5,6 +5,7 @@ import { hasPermission } from "@/lib/permissions"
 import { ApiResponseUtil as apiResponse } from "@/lib/api-response"
 import { contractorSearchSchema, createContractorSchema } from "@/modules/contractor/validations"
 import { ContractorListResponse } from "@/modules/contractor/types"
+import { ContractorService } from "@/modules/contractor/services"
 import { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
@@ -55,28 +56,14 @@ export async function GET(request: NextRequest) {
     }
 
     const [contractors, totalCount] = await Promise.all([
-      PRISMA.contractor.findMany({
+      ContractorService.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * limit,
         take: limit,
-        select: {
-          id: true,
-          nickname: true,
-          firstName: true,
-          lastName: true,
-          fullName: true,
-          email: true,
-          phone: true,
-          position: true,
-          hourlyRate: true,
-          abn: true,
-          active: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        includeBankInfo: false, // Never include bank info in listing
       }),
-      PRISMA.contractor.count({ where }),
+      ContractorService.count(where),
     ])
 
     const totalPages = Math.ceil(totalCount / limit)
@@ -115,9 +102,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createContractorSchema.parse(body)
 
     // Check if nickname is unique
-    const existingContractor = await PRISMA.contractor.findUnique({
-      where: { nickname: validatedData.nickname },
-    })
+    const existingContractor = await ContractorService.findByNickname(validatedData.nickname)
 
     if (existingContractor) {
       return apiResponse.badRequest("A contractor with this nickname already exists")
@@ -125,24 +110,14 @@ export async function POST(request: NextRequest) {
 
     // Check if email is unique (if provided)
     if (validatedData.email) {
-      const existingEmail = await PRISMA.contractor.findUnique({
-        where: { email: validatedData.email },
-      })
+      const existingEmail = await ContractorService.findByEmail(validatedData.email)
 
       if (existingEmail) {
         return apiResponse.badRequest("A contractor with this email already exists")
       }
     }
 
-    const contractor = await PRISMA.contractor.create({
-      data: {
-        ...validatedData,
-        email: validatedData.email || null,
-      },
-      include: {
-        user: true,
-      },
-    })
+    const contractor = await ContractorService.create(validatedData)
 
     return apiResponse.success(
       "Contractor created successfully",

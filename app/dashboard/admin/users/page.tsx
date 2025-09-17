@@ -238,22 +238,20 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
       {/* Header Section */}
-      <div className="flex flex-col space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-            <p className="text-muted-foreground">
-              Manage user accounts and roles across your organization
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
-              {totalCount} users
-            </Badge>
-          </div>
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">User Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            Manage user accounts and roles across your organization
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <Badge variant="outline" className="flex items-center gap-1 text-sm">
+            <Users className="h-3 w-3" />
+            {totalCount} users
+          </Badge>
         </div>
       </div>
 
@@ -274,14 +272,15 @@ export default function AdminUsersPage() {
 
       {/* Compact Filters Section */}
       <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 sm:pb-3">
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Filters</CardTitle>
+            <CardTitle className="text-sm sm:text-base">Filters</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="pt-2">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="space-y-4">
+            {/* Search - Full width on mobile */}
             <div className="space-y-1.5">
               <Label htmlFor="search" className="text-xs font-medium text-muted-foreground">Search</Label>
               <div className="relative">
@@ -296,55 +295,58 @@ export default function AdminUsersPage() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Role</Label>
-              <Select value={roleFilter} onValueChange={(value: Role | 'all') => setRoleFilter(value)}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="All roles" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="SUPERVISOR">Supervisor</SelectItem>
-                  <SelectItem value="WORKER">Worker</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Filter controls */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Role</Label>
+                <Select value={roleFilter} onValueChange={(value: Role | 'all') => setRoleFilter(value)}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="All roles" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="SUPERVISOR">Supervisor</SelectItem>
+                    <SelectItem value="WORKER">Worker</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Email Status</Label>
-              <Select value={emailVerifiedFilter} onValueChange={(value: 'all' | 'verified' | 'unverified') => setEmailVerifiedFilter(value)}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="All users" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Users</SelectItem>
-                  <SelectItem value="verified">
-                    <div className="flex items-center gap-1.5">
-                      <MailCheck className="h-3 w-3 text-green-600" />
-                      <span className="text-sm">Verified</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="unverified">
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="h-3 w-3 text-orange-600" />
-                      <span className="text-sm">Unverified</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Email Status</Label>
+                <Select value={emailVerifiedFilter} onValueChange={(value: 'all' | 'verified' | 'unverified') => setEmailVerifiedFilter(value)}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="All users" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Users</SelectItem>
+                    <SelectItem value="verified">
+                      <div className="flex items-center gap-1.5">
+                        <MailCheck className="h-3 w-3 text-green-600" />
+                        <span className="text-sm">Verified</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="unverified">
+                      <div className="flex items-center gap-1.5">
+                        <Mail className="h-3 w-3 text-orange-600" />
+                        <span className="text-sm">Unverified</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground invisible">Action</Label>
-              <Button 
-                variant="outline" 
-                onClick={() => handlePageChange(1)}
-                disabled={loading}
-                className="w-full h-9 text-sm"
-              >
-                {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
-              </Button>
+              <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
+                <Label className="text-xs font-medium text-muted-foreground">Action</Label>
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(1)}
+                  disabled={loading}
+                  className="w-full h-9 text-sm"
+                >
+                  {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Refresh'}
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -367,14 +369,15 @@ export default function AdminUsersPage() {
               </div>
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-20">
+            <div className="text-center py-16 px-4">
               <Users className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No users found</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="text-base sm:text-lg font-semibold mb-2">No users found</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
                 No users match your current filter criteria.
               </p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearch('')
                   setRoleFilter('all')
@@ -386,177 +389,183 @@ export default function AdminUsersPage() {
               </Button>
             </div>
           ) : (
-            <div className="rounded-md border border-border/50">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/25">
-                    <TableHead className="font-semibold">User</TableHead>
-                    <TableHead className="font-semibold">Role</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">Joined</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user, index) => (
-                    <TableRow key={user.id} className="hover:bg-muted/25 transition-colors">
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.image || undefined} />
-                            <AvatarFallback className="text-xs font-medium">
-                              {getUserInitials(user.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{user.name || 'Unnamed User'}</div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <Badge variant={getRoleBadgeVariant(user.role)} className="font-medium">
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {user.emailVerified ? (
-                            <Badge variant="outline" className="text-green-700 border-green-200 bg-green-50">
-                              <MailCheck className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-orange-700 border-orange-200 bg-orange-50">
-                              <Mail className="h-3 w-3 mr-1" />
-                              Pending
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          {formatDateTime(user.createdAt)}
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {/* Role Change Dropdown */}
-                          <Select
-                            value={user.role}
-                            onValueChange={(newRole: Role) => updateUserRole(user.id, newRole)}
-                            disabled={updatingUserId === user.id}
-                          >
-                            <SelectTrigger className="w-32 h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.values(Role).map((role) => (
-                                <SelectItem key={role} value={role}>
-                                  <div className="flex items-center gap-2">
-                                    <UserCog className="h-3 w-3" />
-                                    {role}
-                                    {role === user.role && (
-                                      <span className="text-xs text-muted-foreground ml-1">(Current)</span>
-                                    )}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          {updatingUserId === user.id && (
-                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          )}
-
-                          {/* Actions Dropdown */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => deleteUser(user.id)}
-                                disabled={user.id === session.user?.id}
-                                className="text-red-600 focus:text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete User
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
+              <div className="rounded-md border border-border/50 mx-3 sm:mx-0">
+                <Table className="min-w-[700px]">
+                  <TableHeader>
+                    <TableRow className="bg-muted/25">
+                      <TableHead className="font-semibold min-w-[180px]">User</TableHead>
+                      <TableHead className="font-semibold min-w-[80px]">Role</TableHead>
+                      <TableHead className="font-semibold min-w-[100px]">Status</TableHead>
+                      <TableHead className="font-semibold min-w-[100px] hidden md:table-cell">Joined</TableHead>
+                      <TableHead className="font-semibold text-right min-w-[140px]">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user, index) => (
+                      <TableRow key={user.id} className="hover:bg-muted/25 transition-colors">
+                        <TableCell className="min-w-0 pr-2">
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
+                              <AvatarImage src={user.image || undefined} />
+                              <AvatarFallback className="text-xs font-medium">
+                                {getUserInitials(user.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-sm truncate pr-2">{user.name || 'Unnamed User'}</div>
+                              <div className="text-xs text-muted-foreground truncate pr-2">{user.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="pr-2">
+                          <Badge variant={getRoleBadgeVariant(user.role)} className="font-medium text-xs whitespace-nowrap">
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+
+                        <TableCell className="pr-2">
+                          <div className="flex items-center">
+                            {user.emailVerified ? (
+                              <Badge variant="outline" className="text-green-700 border-green-200 bg-green-50 text-xs whitespace-nowrap">
+                                <MailCheck className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="hidden sm:inline">Verified</span>
+                                <span className="sm:hidden">✓</span>
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-orange-700 border-orange-200 bg-orange-50 text-xs whitespace-nowrap">
+                                <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="hidden sm:inline">Pending</span>
+                                <span className="sm:hidden">⏳</span>
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="hidden md:table-cell pr-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{formatDateTime(user.createdAt)}</span>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {/* Role Change Dropdown */}
+                            <Select
+                              value={user.role}
+                              onValueChange={(newRole: Role) => updateUserRole(user.id, newRole)}
+                              disabled={updatingUserId === user.id}
+                            >
+                              <SelectTrigger className="w-20 sm:w-24 h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.values(Role).map((role) => (
+                                  <SelectItem key={role} value={role}>
+                                    <div className="flex items-center gap-2">
+                                      <UserCog className="h-3 w-3" />
+                                      <span className="text-xs">{role}</span>
+                                      {role === user.role && (
+                                        <span className="text-xs text-muted-foreground ml-1 hidden sm:inline">(Current)</span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            {updatingUserId === user.id && (
+                              <Loader2 className="h-4 w-4 animate-spin text-primary flex-shrink-0" />
+                            )}
+
+                            {/* Actions Dropdown */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 touch-manipulation">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => deleteUser(user.id)}
+                                  disabled={user.id === session.user?.id}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete User
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-3 border-t bg-muted/25">
-              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                <span>Showing</span>
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 px-3 sm:px-6 py-3 border-t bg-muted/25">
+              <div className="flex items-center justify-center sm:justify-start space-x-1 text-xs sm:text-sm text-muted-foreground">
+                <span className="hidden md:inline">Showing</span>
                 <span className="font-medium text-foreground">
                   {((currentPage - 1) * 20) + 1}-{Math.min(currentPage * 20, totalCount)}
                 </span>
                 <span>of</span>
                 <span className="font-medium text-foreground">{totalCount}</span>
-                <span>users</span>
+                <span className="hidden md:inline">users</span>
               </div>
-              
+
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="gap-0 sm:gap-1">
                   <PaginationItem>
-                    <PaginationPrevious 
+                    <PaginationPrevious
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
                         handlePageChange(currentPage - 1)
                       }}
-                      className={currentPage <= 1 || loading ? "pointer-events-none opacity-50" : ""}
+                      className={`text-xs sm:text-sm px-1 sm:px-2 md:px-3 ${currentPage <= 1 || loading ? "pointer-events-none opacity-50" : ""}`}
                     />
                   </PaginationItem>
-                  
+
                   {/* First page */}
                   {currentPage > 3 && (
                     <>
-                      <PaginationItem>
-                        <PaginationLink 
+                      <PaginationItem className="hidden md:block">
+                        <PaginationLink
                           href="#"
                           onClick={(e) => {
                             e.preventDefault()
                             handlePageChange(1)
                           }}
                           isActive={currentPage === 1}
+                          className="text-xs sm:text-sm px-2 sm:px-3"
                         >
                           1
                         </PaginationLink>
                       </PaginationItem>
                       {currentPage > 4 && (
-                        <PaginationItem>
+                        <PaginationItem className="hidden sm:block">
                           <PaginationEllipsis />
                         </PaginationItem>
                       )}
                     </>
                   )}
-                  
+
                   {/* Page numbers around current page */}
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const page = Math.max(1, currentPage - 2) + i
+                  {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                    const page = Math.max(1, currentPage - 1) + i
                     if (page > totalPages) return null
-                    
+
                     return (
                       <PaginationItem key={page}>
                         <PaginationLink
@@ -566,45 +575,46 @@ export default function AdminUsersPage() {
                             handlePageChange(page)
                           }}
                           isActive={page === currentPage}
-                          className={loading ? "pointer-events-none opacity-50" : ""}
+                          className={`text-xs sm:text-sm px-2 sm:px-3 min-w-[32px] sm:min-w-[36px] ${loading ? "pointer-events-none opacity-50" : ""}`}
                         >
                           {page}
                         </PaginationLink>
                       </PaginationItem>
                     )
                   })}
-                  
+
                   {/* Last page */}
                   {currentPage < totalPages - 2 && (
                     <>
                       {currentPage < totalPages - 3 && (
-                        <PaginationItem>
+                        <PaginationItem className="hidden sm:block">
                           <PaginationEllipsis />
                         </PaginationItem>
                       )}
-                      <PaginationItem>
-                        <PaginationLink 
+                      <PaginationItem className="hidden sm:block">
+                        <PaginationLink
                           href="#"
                           onClick={(e) => {
                             e.preventDefault()
                             handlePageChange(totalPages)
                           }}
                           isActive={currentPage === totalPages}
+                          className="text-xs sm:text-sm"
                         >
                           {totalPages}
                         </PaginationLink>
                       </PaginationItem>
                     </>
                   )}
-                  
+
                   <PaginationItem>
-                    <PaginationNext 
+                    <PaginationNext
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
                         handlePageChange(currentPage + 1)
                       }}
-                      className={currentPage >= totalPages || loading ? "pointer-events-none opacity-50" : ""}
+                      className={`text-xs sm:text-sm px-2 sm:px-3 ${currentPage >= totalPages || loading ? "pointer-events-none opacity-50" : ""}`}
                     />
                   </PaginationItem>
                 </PaginationContent>

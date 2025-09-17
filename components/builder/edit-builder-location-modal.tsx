@@ -96,7 +96,7 @@ export function EditBuilderLocationModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Edit Location</DialogTitle>
           <DialogDescription>
@@ -113,7 +113,7 @@ export function EditBuilderLocationModal({
                 <FormItem>
                   <FormLabel>Location Label *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Main Office, Site 1" {...field} />
+                    <Input placeholder="e.g., Main Office, Site 1" className="text-sm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,11 +127,11 @@ export function EditBuilderLocationModal({
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Enter the full address"
-                      className="min-h-[80px]"
-                      {...field} 
-                      value={field.value || ""} 
+                      className="min-h-[80px] text-sm"
+                      {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -139,11 +139,11 @@ export function EditBuilderLocationModal({
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={handleClose} disabled={loading} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                 {loading ? "Updating..." : "Update Location"}
               </Button>
             </DialogFooter>

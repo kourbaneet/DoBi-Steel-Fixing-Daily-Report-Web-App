@@ -92,7 +92,7 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Create New Builder</DialogTitle>
           <DialogDescription>
@@ -101,11 +101,12 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2 space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2 space-y-2">
               <label className="text-sm font-medium">Company Name *</label>
-              <Input 
-                placeholder="Enter company name" 
+              <Input
+                placeholder="Enter company name"
+                className="text-sm"
                 {...form.register("name", { required: "Company name is required" })}
               />
               {form.formState.errors.name && (
@@ -115,8 +116,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Company Code *</label>
-              <Input 
-                placeholder="e.g., ACME-001" 
+              <Input
+                placeholder="e.g., ACME-001"
+                className="text-sm"
                 {...form.register("companyCode", { required: "Company code is required" })}
               />
               {form.formState.errors.companyCode && (
@@ -126,8 +128,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">ABN</label>
-              <Input 
-                placeholder="Australian Business Number" 
+              <Input
+                placeholder="Australian Business Number"
+                className="text-sm"
                 {...form.register("abn")}
               />
               {form.formState.errors.abn && (
@@ -137,8 +140,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Contact Person</label>
-              <Input 
-                placeholder="Primary contact name" 
+              <Input
+                placeholder="Primary contact name"
+                className="text-sm"
                 {...form.register("contactPerson")}
               />
               {form.formState.errors.contactPerson && (
@@ -148,8 +152,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Phone</label>
-              <Input 
-                placeholder="Phone number" 
+              <Input
+                placeholder="Phone number"
+                className="text-sm"
                 {...form.register("phone")}
               />
               {form.formState.errors.phone && (
@@ -159,9 +164,10 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Contact Email</label>
-              <Input 
-                type="email" 
-                placeholder="contact@company.com" 
+              <Input
+                type="email"
+                placeholder="contact@company.com"
+                className="text-sm"
                 {...form.register("contactEmail")}
               />
               {form.formState.errors.contactEmail && (
@@ -171,8 +177,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Website</label>
-              <Input 
-                placeholder="https://company.com" 
+              <Input
+                placeholder="https://company.com"
+                className="text-sm"
                 {...form.register("website")}
               />
               {form.formState.errors.website && (
@@ -182,10 +189,11 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Supervisor Rate ($)</label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 step="0.01"
-                placeholder="0.00" 
+                placeholder="0.00"
+                className="text-sm"
                 {...form.register("supervisorRate", { valueAsNumber: true })}
               />
               {form.formState.errors.supervisorRate && (
@@ -195,10 +203,11 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Tie Hand Rate ($)</label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 step="0.01"
-                placeholder="0.00" 
+                placeholder="0.00"
+                className="text-sm"
                 {...form.register("tieHandRate", { valueAsNumber: true })}
               />
               {form.formState.errors.tieHandRate && (
@@ -208,10 +217,11 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Tonnage Rate ($)</label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 step="0.01"
-                placeholder="0.00" 
+                placeholder="0.00"
+                className="text-sm"
                 {...form.register("tonnageRate", { valueAsNumber: true })}
               />
               {form.formState.errors.tonnageRate && (
@@ -222,9 +232,9 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Address</label>
-            <Textarea 
+            <Textarea
               placeholder="Company address"
-              className="min-h-[80px]"
+              className="min-h-[80px] text-sm"
               {...form.register("address")}
             />
             {form.formState.errors.address && (
@@ -232,11 +242,11 @@ export function CreateBuilderModal({ open, onClose, onSuccess }: CreateBuilderMo
             )}
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={handleClose} disabled={loading} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? "Creating..." : "Create Builder"}
             </Button>
           </DialogFooter>

@@ -4,6 +4,7 @@ import { PRISMA } from "@/libs/prisma"
 import { hasPermission } from "@/lib/permissions"
 import { ApiResponseUtil as apiResponse } from "@/lib/api-response"
 import { updateContractorSchema } from "@/modules/contractor/validations"
+import { ContractorService } from "@/modules/contractor/services"
 
 export async function GET(
   request: NextRequest,
@@ -20,12 +21,7 @@ export async function GET(
     }
 
     const { contractorId } = await params;
-    const contractor = await PRISMA.contractor.findUnique({
-      where: { id: contractorId },
-      include: {
-        user: true,
-      },
-    })
+    const contractor = await ContractorService.findById(contractorId)
 
     if (!contractor) {
       return apiResponse.notFound("Contractor not found")
@@ -33,7 +29,7 @@ export async function GET(
 
     return apiResponse.success(
       "Contractor retrieved successfully",
-      { 
+      {
         contractor: {
           ...contractor,
           hourlyRate: Number(contractor.hourlyRate)
@@ -68,9 +64,7 @@ export async function PUT(
     })
 
     // Check if contractor exists
-    const existingContractor = await PRISMA.contractor.findUnique({
-      where: { id: contractorId },
-    })
+    const existingContractor = await ContractorService.findByIdWithoutBankInfo(contractorId)
 
     if (!existingContractor) {
       return apiResponse.notFound("Contractor not found")
@@ -78,9 +72,7 @@ export async function PUT(
 
     // Check if nickname is unique (if being updated)
     if (validatedData.nickname && validatedData.nickname !== existingContractor.nickname) {
-      const nicknameExists = await PRISMA.contractor.findUnique({
-        where: { nickname: validatedData.nickname },
-      })
+      const nicknameExists = await ContractorService.findByNickname(validatedData.nickname)
 
       if (nicknameExists) {
         return apiResponse.badRequest("A contractor with this nickname already exists")
@@ -89,9 +81,7 @@ export async function PUT(
 
     // Check if email is unique (if being updated)
     if (validatedData.email && validatedData.email !== existingContractor.email) {
-      const emailExists = await PRISMA.contractor.findUnique({
-        where: { email: validatedData.email },
-      })
+      const emailExists = await ContractorService.findByEmail(validatedData.email)
 
       if (emailExists) {
         return apiResponse.badRequest("A contractor with this email already exists")
@@ -99,17 +89,8 @@ export async function PUT(
     }
 
     const { id, ...updateData } = validatedData
-    
-    const contractor = await PRISMA.contractor.update({
-      where: { id: contractorId },
-      data: {
-        ...updateData,
-        email: validatedData.email || null,
-      },
-      include: {
-        user: true,
-      },
-    })
+
+    const contractor = await ContractorService.update(contractorId, updateData)
 
     return apiResponse.success(
       "Contractor updated successfully",
@@ -142,17 +123,13 @@ export async function DELETE(
 
     const { contractorId } = await params;
     // Check if contractor exists
-    const existingContractor = await PRISMA.contractor.findUnique({
-      where: { id: contractorId },
-    })
+    const existingContractor = await ContractorService.findByIdWithoutBankInfo(contractorId)
 
     if (!existingContractor) {
       return apiResponse.notFound("Contractor not found")
     }
 
-    await PRISMA.contractor.delete({
-      where: { id: contractorId },
-    })
+    await ContractorService.delete(contractorId)
 
     return apiResponse.success("Contractor deleted successfully", null)
   } catch (error) {

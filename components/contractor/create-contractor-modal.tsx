@@ -96,17 +96,17 @@ export function CreateContractorModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Add New Contractor</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Add New Contractor</DialogTitle>
+          <DialogDescription className="text-sm">
             Create a new contractor profile with their details and rates.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="nickname"
@@ -129,7 +129,7 @@ export function CreateContractorModal({
                     <FormLabel>Position</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select position" />
                         </SelectTrigger>
                       </FormControl>
@@ -147,7 +147,7 @@ export function CreateContractorModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -191,7 +191,7 @@ export function CreateContractorModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -221,7 +221,7 @@ export function CreateContractorModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="hourlyRate"
@@ -286,9 +286,9 @@ export function CreateContractorModal({
               )}
             />
 
-            <div className="border-t pt-4">
-              <h3 className="text-lg font-medium mb-3">Banking Details</h3>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="border-t pt-4 sm:pt-6">
+              <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Banking Details</h3>
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="bankName"
@@ -303,33 +303,35 @@ export function CreateContractorModal({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="bsb"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>BSB</FormLabel>
-                      <FormControl>
-                        <Input placeholder="000-000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bsb"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>BSB</FormLabel>
+                        <FormControl>
+                          <Input placeholder="000-000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="accountNo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter account number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="accountNo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter account number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
 
@@ -337,10 +339,10 @@ export function CreateContractorModal({
               control={form.control}
               name="active"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border p-3 sm:p-4 space-y-2 sm:space-y-0">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Active Status</FormLabel>
-                    <div className="text-sm text-muted-foreground">
+                    <FormLabel className="text-sm sm:text-base">Active Status</FormLabel>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
                       Enable this contractor for work assignments
                     </div>
                   </div>
@@ -351,11 +353,11 @@ export function CreateContractorModal({
               )}
             />
 
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                 {isSubmitting ? "Creating..." : "Create Contractor"}
               </Button>
             </div>
