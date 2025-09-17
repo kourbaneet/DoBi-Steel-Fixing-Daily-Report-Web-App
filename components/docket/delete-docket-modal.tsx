@@ -57,7 +57,7 @@ export function DeleteDocketModal({ open, onClose, onSuccess, docket }: DeleteDo
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] mx-4 sm:mx-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -69,7 +69,7 @@ export function DeleteDocketModal({ open, onClose, onSuccess, docket }: DeleteDo
         </DialogHeader>
 
         <div className="py-4">
-          <div className="rounded-lg border p-4 space-y-3">
+          <div className="rounded-lg border p-3 sm:p-4 space-y-3">
             <div>
               <span className="text-sm font-medium text-muted-foreground">Date:</span>
               <div className="font-medium">{formatDate(docket.date)}</div>
@@ -95,7 +95,7 @@ export function DeleteDocketModal({ open, onClose, onSuccess, docket }: DeleteDo
               <div className="font-medium">{docket.supervisor.name || 'Unknown'}</div>
             </div>
 
-            <div className="flex items-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 pt-2">
               <div className="flex items-center gap-1">
                 <span className="text-sm text-muted-foreground">Entries:</span>
                 <Badge variant="secondary">{docket._count.entries}</Badge>
@@ -111,7 +111,7 @@ export function DeleteDocketModal({ open, onClose, onSuccess, docket }: DeleteDo
             <p className="text-sm text-destructive">
               <strong>Warning:</strong> Deleting this docket will permanently remove:
             </p>
-            <ul className="text-sm text-destructive mt-1 ml-4 list-disc">
+            <ul className="text-sm text-destructive mt-2 ml-4 list-disc space-y-1">
               <li>All work entries and hours</li>
               <li>Any attached media files</li>
               <li>All associated data</li>
@@ -119,11 +119,11 @@ export function DeleteDocketModal({ open, onClose, onSuccess, docket }: DeleteDo
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button variant="outline" onClick={onClose} disabled={loading} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+          <Button variant="destructive" onClick={handleDelete} disabled={loading} className="w-full sm:w-auto">
             {loading ? "Deleting..." : "Delete Docket"}
           </Button>
         </DialogFooter>
