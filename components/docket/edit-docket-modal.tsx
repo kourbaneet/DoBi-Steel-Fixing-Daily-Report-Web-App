@@ -125,13 +125,13 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
     if (docketDetail && builders.length > 0) {
       // Populate form with existing data
       form.setValue("date", docketDetail.date.split('T')[0])
-      const builderId = docketDetail.builder?.id || docketDetail.builderId
+      const builderId = docketDetail.builderId
       form.setValue("builderId", builderId)
-      form.setValue("locationId", docketDetail.location?.id || docketDetail.locationId)
+      form.setValue("locationId", docketDetail.locationId)
       form.setValue("scheduleNo", docketDetail.scheduleNo || "")
       form.setValue("description", docketDetail.description || "")
       form.setValue("siteManagerName", docketDetail.siteManagerName || "")
-      
+
       // Set builder locations for the selected builder
       if (builderId) {
         const builder = builders.find(b => b.id === builderId)
@@ -289,7 +289,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Edit Docket</DialogTitle>
           <DialogDescription>
@@ -304,13 +304,14 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
               <CardTitle className="text-lg">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="date"
+                    className="text-sm"
                     {...form.register("date", { required: "Date is required" })}
                   />
                   {form.formState.errors.date && (
@@ -326,6 +327,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                   </label>
                   <Input
                     placeholder="e.g., SCH-001"
+                    className="text-sm"
                     {...form.register("scheduleNo")}
                   />
                 </div>
@@ -337,6 +339,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                 </label>
                 <Textarea
                   placeholder="Description of work performed..."
+                  className="text-sm min-h-[80px]"
                   {...form.register("description")}
                   rows={3}
                 />
@@ -348,6 +351,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                 </label>
                 <Input
                   placeholder="Site manager name"
+                  className="text-sm"
                   {...form.register("siteManagerName")}
                 />
               </div>
@@ -360,7 +364,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
               <CardTitle className="text-lg">Location Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">
                     Builder <span className="text-red-500">*</span>
@@ -369,7 +373,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                     value={form.watch("builderId")} 
                     onValueChange={(value) => form.setValue("builderId", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full text-sm">
                       <SelectValue placeholder="Select builder" />
                     </SelectTrigger>
                     <SelectContent>
@@ -404,7 +408,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                     value={form.watch("locationId")} 
                     onValueChange={(value) => form.setValue("locationId", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full text-sm">
                       <SelectValue placeholder="Select location" />
                     </SelectTrigger>
                     <SelectContent>
@@ -432,18 +436,19 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
           {/* Work Entries */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <CardTitle className="text-lg">Work Entries</CardTitle>
-                <Button type="button" onClick={addEntry} size="sm">
+                <Button type="button" onClick={addEntry} size="sm" className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Entry
+                  <span className="hidden xs:inline">Add Entry</span>
+                  <span className="xs:hidden">Add</span>
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
+                <div key={field.id} className="border rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h4 className="font-medium">Entry {index + 1}</h4>
                     {fields.length > 1 && (
                       <Button
@@ -453,11 +458,12 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                         onClick={() => removeEntry(index)}
                       >
                         <Minus className="h-4 w-4" />
+                        <span className="sr-only">Remove entry</span>
                       </Button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         Contractor <span className="text-red-500">*</span>
@@ -466,7 +472,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                         value={form.watch(`entries.${index}.contractorId`)}
                         onValueChange={(value) => form.setValue(`entries.${index}.contractorId`, value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full text-sm">
                           <SelectValue placeholder="Select contractor" />
                         </SelectTrigger>
                         <SelectContent>
@@ -499,6 +505,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                         step="0.5"
                         min="0"
                         placeholder="0.0"
+                        className="text-sm"
                         {...form.register(`entries.${index}.tonnageHours`, {
                           valueAsNumber: true,
                           min: { value: 0, message: "Hours cannot be negative" }
@@ -515,6 +522,7 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
                         step="0.5"
                         min="0"
                         placeholder="0.0"
+                        className="text-sm"
                         {...form.register(`entries.${index}.dayLabourHours`, {
                           valueAsNumber: true,
                           min: { value: 0, message: "Hours cannot be negative" }
@@ -529,11 +537,11 @@ export function EditDocketModal({ open, onClose, onSuccess, docket }: EditDocket
 
           <Separator />
 
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-2">
+            <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? "Updating..." : "Update Docket"}
             </Button>
           </div>
