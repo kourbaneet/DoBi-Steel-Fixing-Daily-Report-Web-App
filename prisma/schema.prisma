@@ -145,11 +145,11 @@ model Contractor {
 
   hourlyRate Decimal @db.Decimal(10, 2)
 
-  /// Business & payment
+  /// Business & payment (encrypted fields use larger storage)
   abn         String? @db.VarChar(20)
-  bankName    String?
-  bsb         String? @db.VarChar(10)
-  accountNo   String? @db.VarChar(32)
+  bankName    String? @db.Text // Encrypted data needs more space
+  bsb         String? @db.Text // Encrypted data needs more space
+  accountNo   String? @db.Text // Encrypted data needs more space
   phone       String? @db.VarChar(30)
   homeAddress String?
 
@@ -164,6 +164,7 @@ model Contractor {
   updatedAt DateTime @updatedAt
 
   docketEntry DocketEntry[]
+  WorkerInvoice WorkerInvoice[]
 
   @@index([nickname])
   @@index([active])
@@ -232,4 +233,47 @@ model DocketMedia {
   url       String
   caption   String?
   createdAt DateTime @default(now())
+}
+
+
+
+
+// --- Milestone 3: Worker Invoices (minimal required) ---
+
+enum WorkerInvoiceStatus {
+  DRAFT
+  SUBMITTED
+  PAID
+}
+
+model WorkerInvoice {
+  id           String   @id @default(cuid())
+
+  // who this invoice belongs to
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+
+  // week window (ISO Monday start; Sunday end)
+  weekStart    DateTime
+  weekEnd      DateTime
+
+  // SNAPSHOTS taken at submit time (immutable unless admin edits in Weekly Payments)
+  totalHours   Decimal   @db.Decimal(10, 2)
+  hourlyRate   Decimal   @db.Decimal(10, 2)
+  totalAmount  Decimal   @db.Decimal(12, 2)
+
+  // lifecycle
+  status       WorkerInvoiceStatus @default(DRAFT)
+  submittedAt  DateTime?
+  paidAt       DateTime?
+  pdfUrl       String?   // stored file/link to the generated invoice PDF
+  auditNotes   String?   @db.Text // admin notes for changes
+
+  // housekeeping
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // one invoice per worker per week
+  @@unique([contractorId, weekStart])
+  @@index([weekStart, weekEnd])
 }
