@@ -154,10 +154,7 @@ export default function DocketsPage() {
     setEditModalOpen(true)
   }
 
-  const handleDelete = (docket: DocketListItem) => {
-    setSelectedDocket(docket)
-    setDeleteModalOpen(true)
-  }
+ 
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('en-AU', {
@@ -165,6 +162,11 @@ export default function DocketsPage() {
       month: '2-digit',
       day: '2-digit',
     })
+  }
+
+  const handleDelete = (docket: DocketListItem) => {
+    setSelectedDocket(docket)
+    setDeleteModalOpen(true)
   }
 
   const clearFilters = () => {
