@@ -179,44 +179,88 @@ export default function DocketsPage() {
 
     const { page, totalPages } = data
     const pages = []
-    
-    for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) {
+
+    // Show fewer pages on mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+    const pageRange = isMobile ? 1 : 2
+
+    for (let i = Math.max(1, page - pageRange); i <= Math.min(totalPages, page + pageRange); i++) {
       pages.push(i)
     }
 
     return (
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, data.totalCount)} of {data.totalCount} dockets
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+          <span className="hidden sm:inline">
+            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, data.totalCount)} of {data.totalCount} dockets
+          </span>
+          <span className="sm:hidden">
+            {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, data.totalCount)} of {data.totalCount}
+          </span>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-center space-x-1 sm:space-x-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
+            className="text-xs sm:text-sm px-2 sm:px-3"
           >
-            Previous
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </Button>
-          
+
+          {/* Show first page if not in range */}
+          {pages[0] > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(1)}
+                className="text-xs sm:text-sm px-2 sm:px-3"
+              >
+                1
+              </Button>
+              {pages[0] > 2 && <span className="text-xs text-muted-foreground">...</span>}
+            </>
+          )}
+
           {pages.map((pageNum) => (
             <Button
               key={pageNum}
               variant={pageNum === currentPage ? "default" : "outline"}
               size="sm"
               onClick={() => setCurrentPage(pageNum)}
+              className="text-xs sm:text-sm px-2 sm:px-3 min-w-[32px] sm:min-w-[36px]"
             >
               {pageNum}
             </Button>
           ))}
-          
+
+          {/* Show last page if not in range */}
+          {pages[pages.length - 1] < totalPages && (
+            <>
+              {pages[pages.length - 1] < totalPages - 1 && <span className="text-xs text-muted-foreground">...</span>}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(totalPages)}
+                className="text-xs sm:text-sm px-2 sm:px-3"
+              >
+                {totalPages}
+              </Button>
+            </>
+          )}
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
+            className="text-xs sm:text-sm px-2 sm:px-3"
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
+            <span className="sm:hidden">Next</span>
           </Button>
         </div>
       </div>
@@ -225,40 +269,43 @@ export default function DocketsPage() {
 
   return (
     <ProtectedRoute permission="dockets.view">
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Daily Dockets</h2>
-            <p className="text-muted-foreground">
+      <div className="flex-1 space-y-4 p-3 sm:p-4 md:p-6 lg:p-8 pt-4 sm:pt-6">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Daily Dockets</h2>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Manage daily work reports and time tracking
             </p>
           </div>
-          <PermissionWrapper permission="dockets.create">
-            <Button onClick={() => setCreateModalOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Docket
-            </Button>
-          </PermissionWrapper>
+          <div className="flex-shrink-0">
+            <PermissionWrapper permission="dockets.create">
+              <Button onClick={() => setCreateModalOpen(true)} className="w-full sm:w-auto">
+                <Plus className="mr-2 h-4 w-4" />
+                <span className="sm:inline">Create Docket</span>
+              </Button>
+            </PermissionWrapper>
+          </div>
         </div>
 
         {/* Filters */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Filters</CardTitle>
-              <Button variant="outline" onClick={clearFilters}>
+            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+              <CardTitle className="text-lg sm:text-xl">Filters</CardTitle>
+              <Button variant="outline" onClick={clearFilters} size="sm" className="w-full sm:w-auto">
                 Clear Filters
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Start Date</label>
                 <Input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
+                  className="text-sm"
                 />
               </div>
               <div>
@@ -267,6 +314,7 @@ export default function DocketsPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  className="text-sm"
                 />
               </div>
               <div>
@@ -275,6 +323,7 @@ export default function DocketsPage() {
                   placeholder="Builder ID"
                   value={builderId}
                   onChange={(e) => setBuilderId(e.target.value)}
+                  className="text-sm"
                 />
               </div>
               <div>
@@ -283,6 +332,7 @@ export default function DocketsPage() {
                   placeholder="Location ID"
                   value={locationId}
                   onChange={(e) => setLocationId(e.target.value)}
+                  className="text-sm"
                 />
               </div>
             </div>
@@ -291,30 +341,32 @@ export default function DocketsPage() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>All Dockets</CardTitle>
-              <div className="flex items-center space-x-2">
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[130px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="createdAt">Created</SelectItem>
-                    <SelectItem value="updatedAt">Updated</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={sortOrder} onValueChange={setSortOrder}>
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="asc">Asc</SelectItem>
-                    <SelectItem value="desc">Desc</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+              <CardTitle className="text-lg sm:text-xl">All Dockets</CardTitle>
+              <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-2">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-full sm:w-[130px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date">Date</SelectItem>
+                      <SelectItem value="createdAt">Created</SelectItem>
+                      <SelectItem value="updatedAt">Updated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={sortOrder} onValueChange={setSortOrder}>
+                    <SelectTrigger className="w-full sm:w-[100px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="asc">Asc</SelectItem>
+                      <SelectItem value="desc">Desc</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
-                  <SelectTrigger className="w-[100px]">
+                  <SelectTrigger className="w-full sm:w-[100px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -335,112 +387,128 @@ export default function DocketsPage() {
               </div>
             ) : data && data.dockets.length > 0 ? (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Builder</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Supervisor</TableHead>
-                      <TableHead>Entries</TableHead>
-                      <TableHead>Media</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.dockets.map((docket) => (
-                      <TableRow key={docket.id}>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            <div>
-                              <div className="font-medium">{formatDate(docket.date)}</div>
-                              {docket.scheduleNo && (
-                                <div className="text-sm text-muted-foreground">
-                                  Schedule: {docket.scheduleNo}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Building className="mr-2 h-4 w-4" />
-                            <div>
-                              <div className="font-medium">{docket.builder.name}</div>
-                              <Badge variant="outline" className="text-xs">
-                                {docket.builder.companyCode}
-                              </Badge>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4" />
-                            {docket.location.label}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Users className="mr-2 h-4 w-4" />
-                            {docket.supervisor.name || 'Unknown'}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{docket._count.entries}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{docket._count.media}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewDetails(docket)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <PermissionWrapper permission="dockets.edit">
-                                <DropdownMenuItem onClick={() => handleEdit(docket)}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                              </PermissionWrapper>
-                              <PermissionWrapper permission="dockets.delete">
-                                <DropdownMenuItem 
-                                  onClick={() => handleDelete(docket)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </PermissionWrapper>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
+                <div className="overflow-x-auto -mx-3 sm:mx-0">
+                  <div className="min-w-[700px] px-3 sm:px-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[120px]">Date</TableHead>
+                        <TableHead className="min-w-[140px]">Builder</TableHead>
+                        <TableHead className="min-w-[120px] hidden md:table-cell">Location</TableHead>
+                        <TableHead className="min-w-[120px] hidden lg:table-cell">Supervisor</TableHead>
+                        <TableHead className="min-w-[80px] text-center">Entries</TableHead>
+                        <TableHead className="min-w-[80px] text-center hidden sm:table-cell">Media</TableHead>
+                        <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {data.dockets.map((docket) => (
+                        <TableRow key={docket.id}>
+                          <TableCell className="min-w-0 pr-2">
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="hidden sm:block h-4 w-4 flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="font-medium text-sm truncate">{formatDate(docket.date)}</div>
+                                {docket.scheduleNo && (
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {docket.scheduleNo}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-0 pr-2">
+                            <div className="flex items-center space-x-2">
+                              <Building className="hidden sm:block h-4 w-4 flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="font-medium text-sm truncate">{docket.builder.name}</div>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    {docket.builder.companyCode}
+                                  </Badge>
+                                  <div className="md:hidden text-xs text-muted-foreground truncate">
+                                    {docket.location.label}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-0 pr-2 hidden md:table-cell">
+                            <div className="flex items-center space-x-2">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="text-sm truncate">{docket.location.label}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-0 pr-2 hidden lg:table-cell">
+                            <div className="flex items-center space-x-2">
+                              <Users className="h-4 w-4 flex-shrink-0" />
+                              <span className="text-sm truncate">{docket.supervisor.name || 'Unknown'}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center pr-2">
+                            <div className="flex flex-col space-y-1">
+                              <Badge variant="secondary" className="text-xs">{docket._count.entries}</Badge>
+                              <div className="sm:hidden">
+                                <Badge variant="outline" className="text-xs">{docket._count.media}</Badge>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center pr-2 hidden sm:table-cell">
+                            <Badge variant="outline" className="text-xs">{docket._count.media}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0 touch-manipulation">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewDetails(docket)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  <span className="hidden sm:inline">View Details</span>
+                                  <span className="sm:hidden">View</span>
+                                </DropdownMenuItem>
+                                <PermissionWrapper permission="dockets.edit">
+                                  <DropdownMenuItem onClick={() => handleEdit(docket)}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                </PermissionWrapper>
+                                <PermissionWrapper permission="dockets.delete">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDelete(docket)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </PermissionWrapper>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  </div>
+                </div>
                 
                 <div className="mt-4">
                   {renderPagination()}
                 </div>
               </>
             ) : (
-              <div className="text-center py-8">
-                <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-semibold text-gray-900">No dockets</h3>
-                <p className="mt-1 text-sm text-gray-500">
+              <div className="text-center py-8 px-4">
+                <FileText className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm sm:text-base font-semibold text-gray-900">No dockets</h3>
+                <p className="mt-1 text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
                   Get started by creating a new daily docket.
                 </p>
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   <PermissionWrapper permission="dockets.create">
-                    <Button onClick={() => setCreateModalOpen(true)}>
+                    <Button onClick={() => setCreateModalOpen(true)} className="w-full sm:w-auto">
                       <Plus className="mr-2 h-4 w-4" />
                       Create Docket
                     </Button>
