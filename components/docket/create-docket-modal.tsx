@@ -218,7 +218,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Create New Docket</DialogTitle>
           <DialogDescription>
@@ -233,13 +233,14 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
               <CardTitle className="text-lg">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="date"
+                    className="text-sm"
                     {...form.register("date", { required: "Date is required" })}
                   />
                   {form.formState.errors.date && (
@@ -255,6 +256,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                   </label>
                   <Input
                     placeholder="e.g., SCH-001"
+                    className="text-sm"
                     {...form.register("scheduleNo")}
                   />
                 </div>
@@ -266,6 +268,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                 </label>
                 <Textarea
                   placeholder="Description of work performed..."
+                  className="text-sm min-h-[80px]"
                   {...form.register("description")}
                   rows={3}
                 />
@@ -277,6 +280,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                 </label>
                 <Input
                   placeholder="Site manager name"
+                  className="text-sm"
                   {...form.register("siteManagerName")}
                 />
               </div>
@@ -289,7 +293,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
               <CardTitle className="text-lg">Location Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">
                     Builder <span className="text-red-500">*</span>
@@ -298,7 +302,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                     value={form.watch("builderId")}
                     onValueChange={(value) => form.setValue("builderId", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full text-sm">
                       <SelectValue placeholder="Select builder" />
                     </SelectTrigger>
                     <SelectContent>
@@ -334,7 +338,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                     onValueChange={(value) => form.setValue("locationId", value)}
                     disabled={!watchedBuilderId}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full text-sm">
                       <SelectValue placeholder="Select location" />
                     </SelectTrigger>
                     <SelectContent>
@@ -362,18 +366,19 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
           {/* Work Entries */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <CardTitle className="text-lg">Work Entries</CardTitle>
-                <Button type="button" onClick={addEntry} size="sm">
+                <Button type="button" onClick={addEntry} size="sm" className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Entry
+                  <span className="hidden xs:inline">Add Entry</span>
+                  <span className="xs:hidden">Add</span>
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
+                <div key={field.id} className="border rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h4 className="font-medium">Entry {index + 1}</h4>
                     {fields.length > 1 && (
                       <Button
@@ -383,11 +388,12 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                         onClick={() => removeEntry(index)}
                       >
                         <Minus className="h-4 w-4" />
+                        <span className="sr-only">Remove entry</span>
                       </Button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         Contractor <span className="text-red-500">*</span>
@@ -396,7 +402,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                         value={form.watch(`entries.${index}.contractorId`)}
                         onValueChange={(value) => form.setValue(`entries.${index}.contractorId`, value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full text-sm">
                           <SelectValue placeholder="Select contractor" />
                         </SelectTrigger>
                         <SelectContent>
@@ -429,6 +435,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                         step="0.5"
                         min="0"
                         placeholder="0.0"
+                        className="text-sm"
                         {...form.register(`entries.${index}.tonnageHours`, {
                           valueAsNumber: true,
                           min: { value: 0, message: "Hours cannot be negative" }
@@ -445,6 +452,7 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
                         step="0.5"
                         min="0"
                         placeholder="0.0"
+                        className="text-sm"
                         {...form.register(`entries.${index}.dayLabourHours`, {
                           valueAsNumber: true,
                           min: { value: 0, message: "Hours cannot be negative" }
@@ -459,11 +467,11 @@ export function CreateDocketModal({ open, onClose, onSuccess }: CreateDocketModa
 
           <Separator />
 
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-2">
+            <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? "Creating..." : "Create Docket"}
             </Button>
           </div>
