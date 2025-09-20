@@ -44,6 +44,7 @@ import {
 } from "lucide-react"
 import { usePermissions } from "@/hooks/usePermissions"
 import { CreateContractorModal } from "@/components/contractor/create-contractor-modal"
+import { EditContractorModal } from "@/components/contractor/edit-contractor-modal"
 import { toast } from "sonner"
 import { ContractorSummary } from "@/modules/contractor/types"
 import { CONTRACTOR_POSITIONS, CONTRACTOR_SORT_OPTIONS, CONTRACTOR_STATUS_OPTIONS } from "@/modules/contractor/constants"
@@ -530,6 +531,18 @@ export default function ContractorsPage() {
         onClose={() => setCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
       />
+
+      {selectedContractor && (
+        <EditContractorModal
+          open={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false)
+            setSelectedContractor(null)
+          }}
+          onSuccess={handleEditSuccess}
+          contractor={selectedContractor}
+        />
+      )}
     </div>
   )
 }
