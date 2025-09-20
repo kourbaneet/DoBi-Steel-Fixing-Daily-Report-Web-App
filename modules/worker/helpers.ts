@@ -1,4 +1,4 @@
-import { format, parse, isValid, setISOWeek, setISOWeekYear, startOfISOWeek, endOfISOWeek, getISOWeek, getISOWeekYear, subWeeks, startOfWeek } from 'date-fns'
+import { format, parse, isValid, setISOWeek, setISOWeekYear, startOfISOWeek, endOfISOWeek, getISOWeek, getISOWeekYear, subWeeks, startOfWeek, endOfWeek } from 'date-fns'
 import { WorkerInvoiceStatus } from '@prisma/client'
 import { WORKER_CONSTANTS } from './constants'
 import { WeekSummary, WeekDetails, WorkSiteEntry } from './types'
@@ -59,7 +59,10 @@ export function getWeekString(date: Date): string {
 
 export function getWeekLabel(weekStart: Date, weekEnd: Date): string {
   const startFormatted = format(weekStart, 'MMM dd')
-  const endFormatted = format(weekEnd, 'MMM dd, yyyy')
+  // Ensure we format the actual day, not next day due to time precision
+  const endDate = new Date(weekEnd)
+  endDate.setUTCHours(12, 0, 0, 0) // Set to noon to avoid timezone issues
+  const endFormatted = format(endDate, 'MMM dd, yyyy')
   return `${startFormatted} - ${endFormatted}`
 }
 
@@ -91,10 +94,13 @@ export function formatWeekSummary(
     weekEnd: weekEnd.toISOString(),
     weekLabel: getWeekLabel(weekStart, weekEnd),
     totalHours: totalHours.toFixed(WORKER_CONSTANTS.FORMATS.DECIMAL_PLACES),
+    dayLabourHours: "0.00",
+    tonnageHours: "0.00",
     totalAmount: totalAmount.toFixed(WORKER_CONSTANTS.FORMATS.DECIMAL_PLACES),
     status,
     invoiceId,
     canSubmit,
+    locationBreakdown: [],
   }
 }
 
@@ -157,5 +163,9 @@ export function generateWeeksList(startDate: Date, numberOfWeeks: number): Date[
 export function isCurrentOrPastWeek(weekStart: Date): boolean {
   const now = new Date()
   const currentWeekStart = startOfWeek(now, { weekStartsOn: 1 })
-  return weekStart <= currentWeekStart
+  const currentWeekEnd = endOfWeek(now, { weekStartsOn: 1 })
+
+  // Allow access to current week and past weeks, plus a few days into the future
+  // This handles timezone issues and allows current week access
+  return weekStart <= new Date(currentWeekEnd.getTime() + 7 * 24 * 60 * 60 * 1000) // Current week + 7 days buffer
 }
