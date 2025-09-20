@@ -322,9 +322,14 @@ export class InvoiceService {
       const where: any = {}
 
       if (weekStart && weekEnd) {
+        // Handle timezone mismatch: database dates may be offset from calculated dates
+        // Create a range that catches the same week regardless of timezone differences
+        const startRange = new Date(weekStart.getTime() - 12 * 60 * 60 * 1000) // 12 hours before
+        const endRange = new Date(weekStart.getTime() + 12 * 60 * 60 * 1000)   // 12 hours after
+
         where.weekStart = {
-          gte: weekStart,
-          lt: new Date(weekEnd.getTime() + 24 * 60 * 60 * 1000) // Include full end day
+          gte: startRange,
+          lt: endRange
         }
       }
 

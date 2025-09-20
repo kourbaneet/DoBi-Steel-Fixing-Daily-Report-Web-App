@@ -19,7 +19,7 @@ export const createContractorSchema = z.object({
 })
 
 export const updateContractorSchema = createContractorSchema.partial().extend({
-  id: z.string().min(1, "ID is required"),
+  id: z.string().min(1, "Contractor ID is required"),
 })
 
 export const contractorSearchSchema = z.object({

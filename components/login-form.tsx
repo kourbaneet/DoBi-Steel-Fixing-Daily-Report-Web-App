@@ -23,7 +23,6 @@ export function LoginForm({
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [generalError, setGeneralError] = useState("")
   const router = useRouter()
 
@@ -39,7 +38,6 @@ export function LoginForm({
 
   const handlePasswordSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrors({})
     setGeneralError("")
 
     // Client-side validation with Zod
@@ -47,13 +45,7 @@ export function LoginForm({
     const validation = loginSchema.safeParse(formData)
 
     if (!validation.success) {
-      const fieldErrors: Record<string, string> = {}
-      validation.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message
-        }
-      })
-      setErrors(fieldErrors)
+      setGeneralError("Please check your email and password")
       return
     }
 

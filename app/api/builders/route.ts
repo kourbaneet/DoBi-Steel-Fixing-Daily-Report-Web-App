@@ -11,7 +11,16 @@ const getBuildersHandler = async (req: ApiRequest) => {
       select: {
         id: true,
         name: true,
-        companyCode: true
+        companyCode: true,
+        locations: {
+          select: {
+            id: true,
+            label: true
+          },
+          orderBy: {
+            label: 'asc'
+          }
+        }
       },
       orderBy: {
         name: 'asc'

@@ -41,6 +41,12 @@ const getStaticData = () => ({
       url: "/dashboard",
       icon: Home,
       isActive: true,
+      items: [
+        {
+          title: "Overview",
+          url: "/dashboard",
+        },
+      ],
     },
     {
       title: "Daily Dockets",

@@ -1,5 +1,6 @@
+import { NextRequest } from "next/server"
 import { requireAuth, requireRole } from "@/lib/middleware/auth"
-import { createMethodRoute } from "@/lib/middleware/compose"
+import { composeMiddleware } from "@/lib/middleware/compose"
 import { ApiRequest } from "@/lib/middleware/types"
 import { ApiResponseUtil } from "@/lib/api-response"
 import { WorkerService } from "@/modules/worker/services"
@@ -14,7 +15,11 @@ const getWeeksHandler = async (req: ApiRequest) => {
     const params = {
       page: parseInt(searchParams.get("page") || "1"),
       limit: parseInt(searchParams.get("limit") || "12"),
+      weekStart: searchParams.get("weekStart") || undefined,
+      weekEnd: searchParams.get("weekEnd") || undefined,
     }
+
+    console.log('API received params:', params)
 
     const result = await WorkerService.getWeeks(params, req.user)
 
@@ -50,11 +55,14 @@ const getWeeksHandler = async (req: ApiRequest) => {
 }
 
 // Create route with middleware
-export const GET = createMethodRoute(
-  'GET',
-  [
-    requireAuth(),
-    requireRole(['WORKER'])
-  ],
-  getWeeksHandler
-).GET
+export async function GET(request: NextRequest) {
+  const composedHandler = composeMiddleware(
+    [
+      requireAuth(),
+      requireRole(['WORKER'])
+    ],
+    getWeeksHandler
+  )
+
+  return composedHandler(request as ApiRequest)
+}
