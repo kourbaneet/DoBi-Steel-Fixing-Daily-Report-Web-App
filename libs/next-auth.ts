@@ -12,6 +12,8 @@ import { PRISMA } from "./prisma";
 export const authOptions = {
   // Set any random key in .env.local
   secret: process.env.NEXTAUTH_SECRET,
+  // Dynamically set the URL based on environment
+  ...(process.env.NEXTAUTH_URL && { url: process.env.NEXTAUTH_URL }),
   adapter: {
     ...PrismaAdapter(PRISMA),
     createUser: async (user: any) => {
@@ -152,7 +154,7 @@ export const authOptions = {
     brandColor: config.colors.main,
     // Add you own logo below. Recommended size is rectangle (i.e. 200x50px) and show your logo + name.
     // It will be used in the login flow to display your logo. If you don't add it, it will look faded.
-    logo: `https://${config.domainName}/logoAndName.png`,
+    logo: process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/logoAndName.png` : `https://${config.domainName}/logoAndName.png`,
   },
    // 👇 add this
    pages: {
