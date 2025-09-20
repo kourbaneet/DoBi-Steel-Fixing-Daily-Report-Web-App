@@ -9,7 +9,8 @@ import {
   GetWeekDetailsInput,
   GetWeekDetailsResponse,
   CreateInvoiceInput,
-  CreateInvoiceResponse
+  CreateInvoiceResponse,
+  WorkSiteEntry
 } from './types'
 import {
   parseWeekString,
@@ -65,54 +66,158 @@ export class WorkerService {
       throw new Error(WORKER_CONSTANTS.ERRORS.CONTRACTOR_NOT_FOUND)
     }
 
-    const { page = 1, limit = 12 } = params
+    const { page = 1, limit = 12, weekStart: filterWeekStart, weekEnd: filterWeekEnd } = params
 
     // ----- compute date window -----
-    const now = new Date()
-    const toDate = now
-    const fromDate = new Date(toDate)
-    // Show last `page * limit` weeks (paged)
-    const weeksToShow = page * limit
-    fromDate.setUTCDate(toDate.getUTCDate() - weeksToShow * 7)
+    let startWeekMonday: Date
+    let endWeekMonday: Date
 
-    // Normalize to ISO week boundaries (Monday..Sunday)
-    const endWeekMonday = startOfIsoWeekUTC(toDate)
-    const startWeekMonday = startOfIsoWeekUTC(fromDate)
+    if (filterWeekStart && filterWeekEnd) {
+      // Filter for specific week
+      startWeekMonday = new Date(filterWeekStart)
+      endWeekMonday = new Date(filterWeekEnd)
+      console.log('Filtering for specific week:', {
+        filterWeekStart,
+        filterWeekEnd,
+        startWeekMonday: startWeekMonday.toISOString(),
+        endWeekMonday: endWeekMonday.toISOString()
+      })
+    } else {
+      // Default: show recent weeks
+      const now = new Date()
+      const toDate = now
+      const fromDate = new Date(toDate)
+      // Show last `page * limit` weeks (paged)
+      const weeksToShow = page * limit
+      fromDate.setUTCDate(toDate.getUTCDate() - weeksToShow * 7)
+
+      // Normalize to ISO week boundaries (Monday..Sunday)
+      endWeekMonday = startOfIsoWeekUTC(toDate)
+      startWeekMonday = startOfIsoWeekUTC(fromDate)
+    }
 
     // ----- load docket entries for this contractor in range -----
+    let dateFilter: any
+
+    if (filterWeekStart && filterWeekEnd) {
+      // When filtering for specific week, use exact date range
+      dateFilter = {
+        gte: startWeekMonday,
+        lte: endWeekMonday, // Use lte instead of lt for inclusive end
+      }
+      console.log('Using specific week filter:', dateFilter)
+    } else {
+      // Default range logic
+      dateFilter = {
+        gte: startWeekMonday,
+        lt: new Date(endWeekMonday.getTime() + 7 * 24 * 3600 * 1000), // next Monday (exclusive)
+      }
+      console.log('Using default week range:', dateFilter)
+    }
+
     const entries = await PRISMA.docketEntry.findMany({
       where: {
         contractorId: contractor.id,
         docket: {
-          date: {
-            gte: startWeekMonday,
-            lt: new Date(endWeekMonday.getTime() + 7 * 24 * 3600 * 1000), // next Monday (exclusive)
-          },
+          date: dateFilter,
         },
       },
       select: {
         tonnageHours: true,
         dayLabourHours: true,
-        docket: { select: { date: true } },
+        docket: {
+          select: {
+            date: true,
+            builder: {
+              select: {
+                name: true,
+                companyCode: true,
+              }
+            },
+            location: {
+              select: {
+                id: true,
+                label: true,
+              }
+            }
+          }
+        },
       },
       orderBy: [{ docket: { date: "desc" } }],
     })
 
-    // Group by weekStart
-    type WeekAgg = { weekStart: string; hours: number }
+    // Group by weekStart with location breakdown
+    type LocationData = {
+      locationId: string
+      locationLabel: string
+      companyCode: string
+      dayLabourHours: number
+      tonnageHours: number
+      daysWorked: Set<string>
+    }
+    type WeekAgg = {
+      weekStart: string
+      hours: number
+      dayLabourHours: number
+      tonnageHours: number
+      locations: Map<string, LocationData>
+    }
     const map = new Map<string, WeekAgg>()
+
     for (const e of entries) {
       const d = e.docket.date
       const weekStart = iso(startOfIsoWeekUTC(d))
-      const total = Number(e.tonnageHours) + Number(e.dayLabourHours)
-      if (!map.has(weekStart)) map.set(weekStart, { weekStart, hours: 0 })
-      map.get(weekStart)!.hours += total
+      const dayLabour = Number(e.dayLabourHours)
+      const tonnage = Number(e.tonnageHours)
+      const total = dayLabour + tonnage
+      const dateStr = iso(d)
+
+      if (!map.has(weekStart)) {
+        map.set(weekStart, {
+          weekStart,
+          hours: 0,
+          dayLabourHours: 0,
+          tonnageHours: 0,
+          locations: new Map()
+        })
+      }
+
+      const weekData = map.get(weekStart)!
+      weekData.hours += total
+      weekData.dayLabourHours += dayLabour
+      weekData.tonnageHours += tonnage
+
+      // Track location breakdown
+      const locationKey = `${e.docket.location.id}-${e.docket.builder.companyCode}`
+      if (!weekData.locations.has(locationKey)) {
+        weekData.locations.set(locationKey, {
+          locationId: e.docket.location.id,
+          locationLabel: e.docket.location.label,
+          companyCode: e.docket.builder.companyCode,
+          dayLabourHours: 0,
+          tonnageHours: 0,
+          daysWorked: new Set()
+        })
+      }
+
+      const locationData = weekData.locations.get(locationKey)!
+      locationData.dayLabourHours += dayLabour
+      locationData.tonnageHours += tonnage
+      locationData.daysWorked.add(dateStr)
     }
 
-    // Build a list of weekStarts (desc), then paginate
+    // Build a list of weekStarts (desc), then paginate (unless filtering specific week)
     const weekKeysDesc = [...map.keys()].sort((a, b) => (a > b ? -1 : 1))
-    const startIndex = (page - 1) * limit
-    const pagedKeys = weekKeysDesc.slice(startIndex, startIndex + limit)
+
+    let pagedKeys: string[]
+    if (filterWeekStart && filterWeekEnd) {
+      // When filtering for specific week, return all matching weeks (no pagination)
+      pagedKeys = weekKeysDesc
+    } else {
+      // Normal pagination for default view
+      const startIndex = (page - 1) * limit
+      pagedKeys = weekKeysDesc.slice(startIndex, startIndex + limit)
+    }
 
     // Get invoice statuses/snapshots
     let invoiceByWeek = new Map<string, { status: WorkerInvoiceStatus; totalHours: number; hourlyRate: number; totalAmount: number; id: string }>()
@@ -137,25 +242,51 @@ export class WorkerService {
     // Build rows
     const weeks: WeekSummary[] = pagedKeys.map((weekStartStr) => {
       const weekStartDate = new Date(`${weekStartStr}T00:00:00.000Z`)
-      const weekEndDate = endOfIsoWeekUTC(weekStartDate)
+
+      // Use exact dates from filter if provided, otherwise calculate
+      let weekEndDate: Date
+      if (filterWeekStart && filterWeekEnd) {
+        weekEndDate = new Date(filterWeekEnd)
+        console.log('Using filtered week end date:', weekEndDate)
+      } else {
+        weekEndDate = endOfIsoWeekUTC(weekStartDate)
+        console.log('Using calculated week end date:', weekEndDate)
+      }
+
       const agg = map.get(weekStartStr)!
       const snapshot = invoiceByWeek.get(weekStartStr)
 
-      const totalHours = snapshot ? snapshot.totalHours : agg.hours
+      const totalHours = (snapshot && snapshot.status !== WorkerInvoiceStatus.DRAFT) ? snapshot.totalHours : agg.hours
+      const dayLabourHours = (snapshot && snapshot.status !== WorkerInvoiceStatus.DRAFT) ? 0 : agg.dayLabourHours // Only hide breakdown for submitted invoices
+      const tonnageHours = (snapshot && snapshot.status !== WorkerInvoiceStatus.DRAFT) ? 0 : agg.tonnageHours // Only hide breakdown for submitted invoices
       const rate = snapshot ? snapshot.hourlyRate : Number(contractor.hourlyRate)
-      const totalAmount = snapshot ? snapshot.totalAmount : totalHours * rate
+      const totalAmount = (snapshot && snapshot.status !== WorkerInvoiceStatus.DRAFT) ? snapshot.totalAmount : totalHours * rate
       const status = snapshot ? snapshot.status : WorkerInvoiceStatus.DRAFT
       const canSubmit = status === WorkerInvoiceStatus.DRAFT && totalHours > 0
+
+      // Build location breakdown
+      const locationBreakdown = Array.from(agg.locations.values()).map(location => ({
+        locationLabel: location.locationLabel,
+        companyCode: location.companyCode,
+        dayLabourHours: location.dayLabourHours,
+        tonnageHours: location.tonnageHours,
+        totalHours: location.dayLabourHours + location.tonnageHours,
+        totalAmount: (location.dayLabourHours + location.tonnageHours) * rate,
+        daysWorked: location.daysWorked.size
+      }))
 
       return {
         weekStart: weekStartDate.toISOString(),
         weekEnd: weekEndDate.toISOString(),
         weekLabel: getWeekLabel(weekStartDate, weekEndDate),
         totalHours: totalHours.toFixed(2),
+        dayLabourHours: dayLabourHours.toFixed(2),
+        tonnageHours: tonnageHours.toFixed(2),
         totalAmount: totalAmount.toFixed(2),
         status,
         invoiceId: snapshot?.id,
         canSubmit,
+        locationBreakdown,
       }
     })
 
@@ -250,8 +381,24 @@ export class WorkerService {
       }
     })
 
+    // If no entries found, return empty week details instead of throwing error
     if (entries.length === 0) {
-      throw new Error(WORKER_CONSTANTS.ERRORS.NO_TIMESHEET_DATA)
+      const details = {
+        weekStart: weekStart.toISOString(),
+        weekEnd: weekEnd.toISOString(),
+        weekLabel: getWeekLabel(weekStart, weekEnd),
+        hourlyRate: Number(contractor.hourlyRate).toFixed(2),
+        entries: [] as WorkSiteEntry[],
+        totalHours: "0.00",
+        totalAmount: "0.00",
+        status: WorkerInvoiceStatus.DRAFT,
+        invoiceId: undefined as string | undefined,
+        canSubmit: false,
+      }
+
+      return {
+        details,
+      }
     }
 
     // Check if invoice exists for this week

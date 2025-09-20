@@ -3,6 +3,18 @@ import { WorkerInvoiceStatus } from "@prisma/client"
 export interface GetWeeksInput {
   page?: number
   limit?: number
+  weekStart?: string // ISO date string for filtering specific week
+  weekEnd?: string   // ISO date string for filtering specific week
+}
+
+export interface LocationBreakdown {
+  locationLabel: string
+  companyCode: string
+  dayLabourHours: number
+  tonnageHours: number
+  totalHours: number
+  totalAmount: number
+  daysWorked: number
 }
 
 export interface WeekSummary {
@@ -10,10 +22,13 @@ export interface WeekSummary {
   weekEnd: string
   weekLabel: string
   totalHours: string
+  dayLabourHours: string
+  tonnageHours: string
   totalAmount: string
   status: WorkerInvoiceStatus
   invoiceId?: string
   canSubmit: boolean
+  locationBreakdown: LocationBreakdown[]
 }
 
 export interface GetWeeksResponse {
