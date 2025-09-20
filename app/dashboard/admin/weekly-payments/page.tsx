@@ -51,6 +51,12 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { WorkerInvoiceStatus } from "@prisma/client"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { getISOWeek, getISOWeekYear, setISOWeek, setISOWeekYear, startOfISOWeek, format } from "date-fns"
 
 interface AdminInvoiceListItem {
   id: string
@@ -114,6 +120,80 @@ const getStatusColor = (status: string) => {
   }
 }
 
+// Helper functions to match backend UTC-based calculations
+const startOfIsoWeekUTC = (d: Date): Date => {
+  const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+  const day = date.getUTCDay() || 7 // 1..7 (Mon..Sun)
+  if (day !== 1) date.setUTCDate(date.getUTCDate() - (day - 1))
+  return date // Monday 00:00 UTC
+}
+
+const endOfIsoWeekUTC = (weekStart: Date): Date => {
+  const end = new Date(weekStart)
+  end.setUTCDate(end.getUTCDate() + 6) // Sunday
+  return end
+}
+
+// Exact replica of backend parseWeekString function
+const parseWeekStringFrontend = (weekString: string) => {
+  try {
+    const weekMatch = weekString.match(/^(\d{4})-W(\d{1,2})$/)
+    if (!weekMatch) return null
+
+    const year = parseInt(weekMatch[1], 10)
+    const week = parseInt(weekMatch[2], 10)
+
+    if (week < 1 || week > 53) return null
+
+    // Create a date for the given ISO week (EXACT same logic as backend)
+    let date = new Date(year, 0, 4) // Jan 4th is always in week 1
+    date = setISOWeekYear(date, year)
+    date = setISOWeek(date, week)
+
+    const weekStart = startOfIsoWeekUTC(date)
+    const weekEnd = endOfIsoWeekUTC(weekStart)
+
+    return { weekStart, weekEnd }
+  } catch (error) {
+    return null
+  }
+}
+
+// Generate recent weeks using exact backend logic
+const generateRecentWeeks = (count: number = 16) => {
+  const weeks = []
+
+  // Start from current week and go backwards
+  for (let i = 0; i < count; i++) {
+    const today = new Date()
+    const currentWeekStart = startOfIsoWeekUTC(today)
+
+    // Go back i weeks
+    const targetDate = new Date(currentWeekStart)
+    targetDate.setUTCDate(currentWeekStart.getUTCDate() - (i * 7))
+
+    const year = getISOWeekYear(targetDate)
+    const week = getISOWeek(targetDate)
+    const weekString = `${year}-W${week.toString().padStart(2, '0')}`
+
+    // Use the parseWeekString logic to get exact dates
+    const parsed = parseWeekStringFrontend(weekString)
+    if (!parsed) continue
+
+    const { weekStart, weekEnd } = parsed
+    const weekLabel = `${format(weekStart, 'yyyy-MMM-dd')} to ${format(weekEnd, 'MMM-dd')}`
+
+    weeks.push({
+      value: weekString,
+      label: weekLabel,
+      startDate: weekStart,
+      endDate: weekEnd,
+    })
+  }
+
+  return weeks
+}
+
 export default function AdminWeeklyPaymentsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -131,6 +211,7 @@ export default function AdminWeeklyPaymentsPage() {
     auditNote: ""
   })
   const [updating, setUpdating] = useState(false)
+  const [weekPickerOpen, setWeekPickerOpen] = useState(false)
 
   useEffect(() => {
     fetchInvoices()
@@ -242,6 +323,38 @@ export default function AdminWeeklyPaymentsPage() {
     } catch (err) {
       console.error('Error marking invoice as paid:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to mark invoice as paid'
+      toast.error(errorMessage)
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleUndoPaid = async (invoiceId: string) => {
+    try {
+      setUpdating(true)
+
+      const response = await fetch(`/api/invoices/${invoiceId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'SUBMITTED',
+          auditNote: 'Payment status reverted by admin'
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || 'Failed to undo payment status')
+      }
+
+      toast.success('Payment status reverted successfully!')
+      await fetchInvoices()
+
+    } catch (err) {
+      console.error('Error undoing payment status:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to undo payment status'
       toast.error(errorMessage)
     } finally {
       setUpdating(false)
@@ -363,12 +476,62 @@ export default function AdminWeeklyPaymentsPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="week">Week</Label>
-              <Input
-                id="week"
-                placeholder="e.g. 2025-W38"
-                value={weekFilter}
-                onChange={(e) => setWeekFilter(e.target.value)}
-              />
+              <Popover open={weekPickerOpen} onOpenChange={setWeekPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="week"
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {weekFilter ? (
+                      (() => {
+                        const weeks = generateRecentWeeks(20)
+                        const selectedWeek = weeks.find(w => w.value === weekFilter)
+                        return selectedWeek ? selectedWeek.label : weekFilter
+                      })()
+                    ) : (
+                      "Select a week..."
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0" align="start">
+                  <div className="p-3">
+                    <h4 className="font-medium text-sm mb-3">Select Week</h4>
+                    <div className="max-h-60 overflow-y-auto space-y-1">
+                      {generateRecentWeeks(20).map((week) => (
+                        <Button
+                          key={week.value}
+                          variant={weekFilter === week.value ? "default" : "ghost"}
+                          className="w-full justify-start text-sm font-normal"
+                          onClick={() => {
+                            setWeekFilter(week.value)
+                            setWeekPickerOpen(false)
+                          }}
+                        >
+                          <Calendar className="mr-2 h-3 w-3" />
+                          {week.label}
+                        </Button>
+                      ))}
+                    </div>
+                    {weekFilter && (
+                      <div className="pt-3 border-t mt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setWeekFilter("")
+                            setWeekPickerOpen(false)
+                          }}
+                        >
+                          Clear Selection
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label htmlFor="search">Search Nickname</Label>
@@ -564,7 +727,7 @@ export default function AdminWeeklyPaymentsPage() {
                             </DialogContent>
                           </Dialog>
 
-                          {invoice.status !== 'PAID' && (
+                          {invoice.status !== 'PAID' ? (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button size="sm" variant="default" disabled={updating}>
@@ -595,6 +758,42 @@ export default function AdminWeeklyPaymentsPage() {
                                     onClick={() => handleMarkPaid(invoice)}
                                   >
                                     Mark as Paid
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" disabled={updating}>
+                                  <X className="h-3 w-3 mr-1" />
+                                  Undo Paid
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Undo Payment Status</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to revert this invoice back to &quot;Submitted&quot; status?
+                                    <br />
+                                    <br />
+                                    <strong>Worker:</strong> {invoice.contractorNickname}
+                                    <br />
+                                    <strong>Week:</strong> {invoice.weekLabel}
+                                    <br />
+                                    <strong>Amount:</strong> ${invoice.totalAmount.toFixed(2)}
+                                    <br />
+                                    <br />
+                                    This will change the status from &quot;Paid&quot; back to &quot;Submitted&quot;.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleUndoPaid(invoice.id)}
+                                    disabled={updating}
+                                  >
+                                    {updating ? 'Processing...' : 'Undo Payment'}
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
