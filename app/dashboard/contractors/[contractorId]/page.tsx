@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { usePermissions } from "@/hooks/usePermissions"
 import { toast } from "sonner"
+import { EditContractorModal } from "@/components/contractor/edit-contractor-modal"
 
 interface ContractorDetail {
   id: string
@@ -49,6 +50,7 @@ export default function ContractorDetailPage() {
   const { hasPermission } = usePermissions()
   const [contractor, setContractor] = useState<ContractorDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   const contractorId = params.contractorId as string
 
@@ -101,6 +103,12 @@ export default function ContractorDetailPage() {
     return contractor.fullName ||
            `${contractor.firstName || ''} ${contractor.lastName || ''}`.trim() ||
            contractor.nickname
+  }
+
+  const handleEditSuccess = () => {
+    setEditModalOpen(false)
+    fetchContractor() // Refresh the data
+    toast.success("Contractor updated successfully")
   }
 
   if (loading) {
@@ -164,7 +172,11 @@ export default function ContractorDetailPage() {
           </div>
         </div>
         {hasPermission("contractors.edit") && (
-          <Button size="sm" className="w-full sm:w-auto">
+          <Button
+            size="sm"
+            className="w-full sm:w-auto"
+            onClick={() => setEditModalOpen(true)}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Contractor
           </Button>
@@ -344,6 +356,30 @@ export default function ContractorDetailPage() {
           </Card>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {contractor && (
+        <EditContractorModal
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onSuccess={handleEditSuccess}
+          contractor={{
+            id: contractor.id,
+            nickname: contractor.nickname,
+            firstName: contractor.firstName,
+            lastName: contractor.lastName,
+            fullName: contractor.fullName,
+            email: contractor.email,
+            phone: contractor.phone,
+            position: contractor.position,
+            hourlyRate: contractor.hourlyRate,
+            abn: contractor.abn,
+            active: contractor.active,
+            createdAt: new Date(contractor.createdAt),
+            updatedAt: new Date(contractor.updatedAt),
+          }}
+        />
+      )}
     </div>
   )
 }
